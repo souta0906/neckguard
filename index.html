@@ -108,14 +108,14 @@
       // 姿勢の判定（前傾角度で判断）
       const statusEl = document.getElementById('status');
       if (beta < 30) {
-        statusEl.textContent = '✅ 姿勢：良好';
-        statusEl.className = 'ok';
+        statusEl.textContent = '🚨 姿勢：前傾しすぎ！';
+        statusEl.className = 'danger';
       } else if (beta < 45) {
         statusEl.textContent = '⚠️ 姿勢：やや前傾';
         statusEl.className = 'warning';
       } else {
-        statusEl.textContent = '🚨 姿勢：前傾しすぎ！';
-        statusEl.className = 'danger';
+        statusEl.textContent = '✅ 姿勢：良好';
+        statusEl.className = 'ok';
       }
     }
   </script>
