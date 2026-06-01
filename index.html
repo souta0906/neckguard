@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeckGuard デモ</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f4f8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    h1 { font-size: 1.4rem; color: #333; margin-bottom: 24px; }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px 32px;
+      margin: 8px;
+      width: 80vw;
+      max-width: 340px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .label { font-size: 0.9rem; color: #888; margin-bottom: 4px; }
+    .value { font-size: 2.8rem; font-weight: bold; color: #2563eb; }
+    .unit  { font-size: 1rem; color: #555; }
+
+    #status {
+      margin-top: 20px;
+      font-size: 1rem;
+      padding: 10px 24px;
+      border-radius: 999px;
+      font-weight: bold;
+    }
+    .ok      { background: #dcfce7; color: #16a34a; }
+    .warning { background: #fef9c3; color: #ca8a04; }
+    .danger  { background: #fee2e2; color: #dc2626; }
+
+    button {
+      margin-top: 28px;
+      padding: 12px 32px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 999px;
+      background: #2563eb;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>📐 NeckGuard デモ</h1>
+
+  <div class="card">
+    <div class="label">スマホの前傾角度</div>
+    <div class="value" id="tilt">--</div>
+    <div class="unit">度（°）</div>
+  </div>
+
+  <div class="card">
+    <div class="label">左右の傾き</div>
+    <div class="value" id="roll">--</div>
+    <div class="unit">度（°）</div>
+  </div>
+
+  <div id="status" class="ok">センサー待機中...</div>
+
+  <!-- iOSはユーザー操作で許可が必要なためボタンを用意 -->
+  <button id="startBtn" onclick="requestPermission()">センサー開始</button>
+
+  <script>
+    function requestPermission() {
+      // iOS 13以降はDeviceOrientationEventの許可が必要
+      if (typeof DeviceOrientationEvent !== 'undefined' &&
+          typeof DeviceOrientationEvent.requestPermission === 'function') {
+        DeviceOrientationEvent.requestPermission()
+          .then(response => {
+            if (response === 'granted') {
+              window.addEventListener('deviceorientation', handleOrientation);
+              document.getElementById('startBtn').style.display = 'none';
+            } else {
+              alert('センサーの許可が拒否されました');
+            }
+          })
+          .catch(console.error);
+      } else {
+        // Android・PCはそのまま使える
+        window.addEventListener('deviceorientation', handleOrientation);
+        document.getElementById('startBtn').style.display = 'none';
+      }
+    }
+
+    function handleOrientation(event) {
+      // beta  = 前後の傾き（-180〜180°）
+      // gamma = 左右の傾き（-90〜90°）
+      const beta  = event.beta  !== null ? Math.round(event.beta)  : 0;
+      const gamma = event.gamma !== null ? Math.round(event.gamma) : 0;
+
+      document.getElementById('tilt').textContent = beta;
+      document.getElementById('roll').textContent = gamma;
+
+      // 姿勢の判定（前傾角度で判断）
+      const statusEl = document.getElementById('status');
+      if (beta < 30) {
+        statusEl.textContent = '✅ 姿勢：良好';
+        statusEl.className = 'ok';
+      } else if (beta < 45) {
+        statusEl.textContent = '⚠️ 姿勢：やや前傾';
+        statusEl.className = 'warning';
+      } else {
+        statusEl.textContent = '🚨 姿勢：前傾しすぎ！';
+        statusEl.className = 'danger';
+      }
+    }
+  </script>
+</body>
+</html>
