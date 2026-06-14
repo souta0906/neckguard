@@ -14,6 +14,9 @@
       justify-content: center;
       height: 100vh;
       margin: 0;
+      overflow: hidden;       /* スクロール自体を禁止 */
+      touch-action: none;     /* タッチによるスクロール・ズーム操作を無効化 */
+
     }
     h1 { font-size: 1.4rem; color: #333; margin-bottom: 24px; }
 
@@ -55,7 +58,7 @@
   </style>
 </head>
 <body>
-  <h1>📐 NeckGuard デモ</h1>
+  <h1>NeckGuardデモ</h1>
 
   <div class="card">
     <div class="label">スマホの前傾角度</div>
@@ -69,7 +72,7 @@
     <div class="unit">度（°）</div>
   </div>
 
-  <div id="status" class="ok">センサー待機中...</div>//姿勢の判定結果（良好・やや前傾・前傾しすぎ）を表示
+  <div id="status" class="ok">センサー待機中...</div> 
 
   <!-- iOSはユーザー操作で許可が必要なためボタンを用意 -->
   <button id="startBtn" onclick="requestPermission()">センサー開始</button>
@@ -107,10 +110,10 @@
 
       // 姿勢の判定（前傾角度で判断）
       const statusEl = document.getElementById('status');
-      if (beta < 30) {
+      if (beta <= 30) {
         statusEl.textContent = '🚨 姿勢：前傾しすぎ！';
         statusEl.className = 'danger';
-      } else if (beta < 45) {
+      } else if (beta <= 45) {
         statusEl.textContent = '⚠️ 姿勢：やや前傾';
         statusEl.className = 'warning';
       } else {
