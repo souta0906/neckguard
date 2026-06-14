@@ -110,6 +110,8 @@
 
       // 姿勢の判定（前傾角度で判断）
       const statusEl = document.getElementById('status');
+      const tiltEl = document.getElementById('tilt');
+
       if (beta <= 30) {
         statusEl.textContent = '🚨 姿勢：前傾しすぎ！';
         statusEl.className = 'danger';
@@ -121,7 +123,7 @@
       } else {
         statusEl.textContent = '✅ 姿勢：良好';
         statusEl.className = 'ok';
-        tiltEl.style.color = '#2563eb'; // 通常の青
+        tiltEl.style.color = '#2563eb'; // 青
       }
     }
   </script>
