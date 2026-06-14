@@ -31,7 +31,7 @@
       text-align: center;
     }
     .label { font-size: 0.9rem; color: #888; margin-bottom: 4px; }
-    .value { font-size: 2.8rem; font-weight: bold; color: #2563eb; }
+    .value { font-size: 2.8rem; font-weight: bold; color: #2563eb; transition: color 0.3s;}
     .unit  { font-size: 1rem; color: #555; }
 
     #status {
@@ -113,12 +113,15 @@
       if (beta <= 30) {
         statusEl.textContent = '🚨 姿勢：前傾しすぎ！';
         statusEl.className = 'danger';
+        tiltEl.style.color = '#dc2626'; // 赤
       } else if (beta <= 45) {
         statusEl.textContent = '⚠️ 姿勢：やや前傾';
         statusEl.className = 'warning';
+        tiltEl.style.color = '#ca8a04'; // 黄
       } else {
         statusEl.textContent = '✅ 姿勢：良好';
         statusEl.className = 'ok';
+        tiltEl.style.color = '#2563eb'; // 通常の青
       }
     }
   </script>
