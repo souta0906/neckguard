@@ -18,6 +18,7 @@
       touch-action: none;     /* タッチによるスクロール・ズーム操作を無効化 */
 
     }
+    
     h1 { font-size: 1.4rem; color: #333; margin-bottom: 24px; }
 
     .card {
@@ -55,9 +56,22 @@
       color: white;
       cursor: pointer;
     }
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: red;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 999;
+    }
   </style>
 </head>
 <body>
+  <div id="overlay"></div>
   <h1>NeckGuardデモ</h1>
 
   <div class="card">
@@ -107,6 +121,18 @@
 
       document.getElementById('tilt').textContent = beta;
       document.getElementById('roll').textContent = gamma;
+
+      // 角度に応じてオーバーレイの濃さを計算
+      const overlay = document.getElementById('overlay');
+      let opacity = 0;
+
+      if (beta <= 45) {
+        // 45度で透明(0)、0度で最大(0.6)になるよう計算
+        opacity = (45 - beta) / 45 * 0.6;
+        opacity = Math.max(0, Math.min(opacity, 0.6)); // 0〜0.6に制限
+      }
+
+      overlay.style.opacity = opacity;
 
       // 姿勢の判定（前傾角度で判断）
       const statusEl = document.getElementById('status');
