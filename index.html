@@ -379,7 +379,7 @@
   <div class="card">
     <div class="card-label">警告する傾き角度のしきい値</div>
     <div class="slider-row">
-      <input type="range" id="threshold-slider" min="5" max="60" value="30" step="1">
+      <input type="range" id="threshold-slider" min="0" max="90" value="30" step="1">
       <div class="slider-val"><span id="threshold-num">30</span>°</div>
     </div>
     <div class="slider-hint">前傾が <strong id="threshold-hint">30</strong>° を超えると白いオーバーレイを表示</div>
@@ -577,7 +577,7 @@
     currentBeta = e.beta !== null ? e.beta : 0;
     const tilt  = Math.abs(Math.round(currentBeta));
 
-    if (tilt > threshold) {
+    if (tilt < (90 - threshold)) {
       if (!overlayOn) {
         overlayOn = true;
         $overlay.classList.add('active');
