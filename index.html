@@ -2,156 +2,735 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NeckGuard デモ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>NeckGuard ニュースリーダー</title>
   <style>
+    /* ===== BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: sans-serif;
       background: #f0f4f8;
-      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ===== SCREENS ===== */
+    .screen { display: none; }
+    .screen.active { display: flex; }
+
+    /* ===== START SCREEN ===== */
+    #screen-start {
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
-      margin: 0;
-      overflow: hidden;       /* スクロール自体を禁止 */
-      touch-action: none;     /* タッチによるスクロール・ズーム操作を無効化 */
-
+      min-height: 100vh;
+      padding: 32px 20px;
+      text-align: center;
     }
-    
-    h1 { font-size: 1.4rem; color: #333; margin-bottom: 24px; }
+    #screen-start h1 {
+      font-size: 1.4rem;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    #screen-start p {
+      font-size: 0.85rem;
+      color: #888;
+      margin-bottom: 28px;
+      line-height: 1.6;
+      max-width: 300px;
+    }
 
     .card {
       background: white;
       border-radius: 16px;
-      padding: 24px 32px;
+      padding: 20px 28px;
       margin: 8px;
       width: 80vw;
       max-width: 340px;
       box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-      text-align: center;
     }
-    .label { font-size: 0.9rem; color: #888; margin-bottom: 4px; }
-    .value { font-size: 2.8rem; font-weight: bold; color: #2563eb; transition: color 0.3s;}
-    .unit  { font-size: 1rem; color: #555; }
+    .card-label {
+      font-size: 0.85rem;
+      color: #888;
+      margin-bottom: 12px;
+      text-align: left;
+    }
 
-    #status {
-      margin-top: 20px;
-      font-size: 1rem;
-      padding: 10px 24px;
-      border-radius: 999px;
+    /* threshold slider */
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .slider-row input[type=range] {
+      flex: 1;
+      accent-color: #2563eb;
+      height: 4px;
+    }
+    .slider-val {
+      font-size: 1.6rem;
       font-weight: bold;
+      color: #2563eb;
+      min-width: 52px;
+      text-align: right;
     }
-    .ok      { background: #dcfce7; color: #16a34a; }
-    .warning { background: #fef9c3; color: #ca8a04; }
-    .danger  { background: #fee2e2; color: #dc2626; }
+    .slider-hint {
+      font-size: 0.75rem;
+      color: #aaa;
+      margin-top: 8px;
+      text-align: left;
+    }
 
-    button {
+    /* start button */
+    #btn-start {
       margin-top: 28px;
-      padding: 12px 32px;
+      padding: 14px 36px;
       font-size: 1rem;
       border: none;
       border-radius: 999px;
       background: #2563eb;
       color: white;
       cursor: pointer;
+      width: 80vw;
+      max-width: 340px;
+      font-weight: bold;
+      transition: background 0.2s;
     }
+    #btn-start:active { background: #1d4ed8; }
+
+    /* ===== READER SCREEN ===== */
+    #screen-reader {
+      flex-direction: column;
+      min-height: 100vh;
+      background: #f0f4f8;
+    }
+
+    .reader-topbar {
+      position: sticky;
+      top: 0;
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .reader-topbar .topic-tag {
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #2563eb;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    #btn-finish {
+      padding: 7px 20px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 999px;
+      background: #dc2626;
+      color: white;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #btn-finish:active { background: #b91c1c; }
+
+    .article-body {
+      padding: 24px 20px 60px;
+      max-width: 640px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .article-kicker {
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 10px;
+    }
+    .article-title {
+      font-size: 1.35rem;
+      font-weight: bold;
+      color: #111;
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+    .article-meta {
+      font-size: 0.8rem;
+      color: #aaa;
+      margin-bottom: 18px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .article-lead {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #222;
+      line-height: 1.75;
+      margin-bottom: 18px;
+    }
+    .article-text {
+      font-size: 0.95rem;
+      color: #444;
+      line-height: 1.85;
+    }
+    .article-text p { margin-bottom: 16px; }
+    .article-text h3 {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #222;
+      margin: 24px 0 8px;
+    }
+    .article-text blockquote {
+      border-left: 3px solid #2563eb;
+      padding-left: 14px;
+      color: #666;
+      font-style: italic;
+      margin: 20px 0;
+    }
+
+    /* ===== POSTURE OVERLAY ===== */
     #overlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: red;
+      inset: 0;
+      background: white;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.3s ease;
-      z-index: 999;
+      transition: opacity 0.4s ease;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
+    #overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .overlay-icon {
+      font-size: 3rem;
+      margin-bottom: 14px;
+      animation: sway 1.8s ease-in-out infinite;
+    }
+    @keyframes sway {
+      0%, 100% { transform: rotate(-10deg); }
+      50%       { transform: rotate(10deg); }
+    }
+    .overlay-msg {
+      font-size: 1.15rem;
+      font-weight: bold;
+      color: #111;
+      text-align: center;
+    }
+    .overlay-sub {
+      font-size: 0.85rem;
+      color: #888;
+      margin-top: 6px;
+      text-align: center;
+      padding: 0 32px;
+    }
+
+    /* ===== RESULT SCREEN ===== */
+    #screen-result {
+      flex-direction: column;
+      align-items: center;
+      padding: 36px 20px 60px;
+      min-height: 100vh;
+    }
+    #screen-result h2 {
+      font-size: 1.4rem;
+      color: #333;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      width: 80vw;
+      max-width: 340px;
+      margin-bottom: 12px;
+    }
+    .stat-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      width: 80vw;
+      max-width: 340px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 14px;
+      padding: 14px 10px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .stat-card .s-label {
+      font-size: 0.7rem;
+      color: #888;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .stat-card .s-val {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #2563eb;
+      line-height: 1;
+    }
+    .stat-card .s-val.danger { color: #dc2626; }
+    .stat-card .s-unit {
+      font-size: 0.75rem;
+      color: #aaa;
+      margin-top: 2px;
+    }
+
+    /* chart */
+    .chart-card {
+      background: white;
+      border-radius: 14px;
+      padding: 16px 14px 10px;
+      width: 80vw;
+      max-width: 340px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .chart-card .chart-title {
+      font-size: 0.78rem;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+    #result-chart { width: 100%; display: block; }
+
+    /* table */
+    .table-card {
+      background: white;
+      border-radius: 14px;
+      overflow: hidden;
+      width: 80vw;
+      max-width: 340px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .table-card table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .table-card thead { background: #2563eb; color: white; }
+    .table-card thead th { padding: 9px 10px; text-align: left; font-size: 0.75rem; }
+    .table-card tbody tr { border-bottom: 1px solid #f0f4f8; }
+    .table-card tbody tr:last-child { border-bottom: none; }
+    .table-card tbody td { padding: 8px 10px; color: #444; }
+    .table-card tbody tr:nth-child(even) { background: #f9fafb; }
+    .td-bad { color: #dc2626; font-weight: bold; }
+
+    /* result buttons */
+    .result-btn-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 80vw;
+      max-width: 340px;
+    }
+    .btn-blue {
+      padding: 13px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 999px;
+      background: #2563eb;
+      color: white;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-blue:active { background: #1d4ed8; }
+    .btn-outline {
+      padding: 13px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      border: 2px solid #d1d5db;
+      border-radius: 999px;
+      background: white;
+      color: #555;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-outline:active { background: #f3f4f6; }
   </style>
 </head>
 <body>
-  <div id="overlay"></div>
-  <h1>NeckGuardデモ</h1>
+
+<!-- ===== OVERLAY ===== -->
+<div id="overlay">
+  <div class="overlay-icon">🧍</div>
+  <div class="overlay-msg">姿勢を正しましょう</div>
+  <div class="overlay-sub">スマホを持ち直して、<br>背筋を伸ばしてください</div>
+</div>
+
+<!-- ===== START SCREEN ===== -->
+<div id="screen-start" class="screen active">
+  <h1>NeckGuard ニュースリーダー</h1>
+  <p>記事を読みながら、スマホの傾きを自動で記録。<br>姿勢が崩れたらお知らせします。</p>
 
   <div class="card">
-    <div class="label">スマホの前傾角度</div>
-    <div class="value" id="tilt">--</div>
-    <div class="unit">度（°）</div>
+    <div class="card-label">警告する傾き角度のしきい値</div>
+    <div class="slider-row">
+      <input type="range" id="threshold-slider" min="5" max="60" value="30" step="1">
+      <div class="slider-val"><span id="threshold-num">30</span>°</div>
+    </div>
+    <div class="slider-hint">前傾が <strong id="threshold-hint">30</strong>° を超えると白いオーバーレイを表示</div>
   </div>
 
-  <div class="card">
-    <div class="label">左右の傾き</div>
-    <div class="value" id="roll">--</div>
-    <div class="unit">度（°）</div>
+  <button id="btn-start">センサー開始 → 記事を読む</button>
+</div>
+
+<!-- ===== READER SCREEN ===== -->
+<div id="screen-reader" class="screen">
+  <div class="reader-topbar">
+    <span class="topic-tag">テクノロジー</span>
+    <button id="btn-finish">読み終わった</button>
+  </div>
+  <div class="article-body">
+    <div class="article-kicker">AI・科学技術</div>
+    <h1 class="article-title">人工知能が変える医療の未来：診断から治療まで</h1>
+    <div class="article-meta">2025年6月 &nbsp;·&nbsp; 読了目安 5分</div>
+    <p class="article-lead">
+      人工知能（AI）技術の急速な進化が、医療の現場に革命的な変化をもたらしています。
+      画像診断の精度向上から個別化医療の実現まで、その影響は幅広い領域に及んでいます。
+    </p>
+    <div class="article-text">
+      <p>
+        近年、ディープラーニングを活用した医療画像解析システムが世界中の病院で導入され始めています。
+        これらのシステムは、放射線科医や病理医が見落とす可能性のある微細な異常を高精度で検出し、
+        早期発見・早期治療につなげることが期待されています。
+      </p>
+      <h3>画像診断における飛躍的な進歩</h3>
+      <p>
+        米国のスタンフォード大学が開発したAIシステムは、胸部X線画像から14種類の肺疾患を
+        放射線科医と同等以上の精度で診断できることが実証されました。
+        また、皮膚科領域では、スマートフォンのカメラで撮影した皮膚の画像から
+        悪性黒色腫を検出するAIが、皮膚科専門医と遜色ない正確さを示しています。
+      </p>
+      <p>
+        日本でも、消化器内視鏡検査においてAIを活用したポリープ検出システムが
+        一部の医療機関で実用化されており、見逃しを大幅に減少させる効果が確認されています。
+      </p>
+      <blockquote>
+        「AIは医師に取って代わるのではなく、医師の能力を拡張するツールとして機能する」<br>
+        ―― 東京大学医学部 山田教授
+      </blockquote>
+      <h3>個別化医療とゲノム解析</h3>
+      <p>
+        AIの活躍は画像診断にとどまりません。ゲノム解析の分野では、
+        膨大な遺伝子データを解析してがんの発症リスクや薬の効果を予測するシステムが開発されています。
+        患者一人ひとりの遺伝的特性に合わせた「個別化医療」の実現に向けて、
+        AIは不可欠なツールとなりつつあります。
+      </p>
+      <p>
+        製薬企業もAIを積極的に活用しています。新薬開発では、
+        候補となる化合物の数が膨大であるため、従来は臨床試験にたどり着くまでに
+        10年以上かかることも珍しくありませんでした。しかしAIによるシミュレーションにより、
+        有望な候補化合物を短期間で絞り込むことが可能になり、開発期間の大幅な短縮が期待されています。
+      </p>
+      <h3>課題と倫理的考察</h3>
+      <p>
+        一方で、AIの医療応用には解決すべき課題も多く残されています。
+        医療データのプライバシー保護、AIの判断に対する説明責任、
+        そして医師とAIの役割分担をどのように設計するかという問題が世界的に議論されています。
+      </p>
+      <p>
+        特に重要なのは、AIが誤った診断を下した場合の責任の所在です。
+        現行の法律では、医療行為の責任は医師が負うことになっていますが、
+        AIが診断プロセスに深く関わる場合、この枠組みだけでは対応しきれない事態も生じる可能性があります。
+      </p>
+      <h3>未来への展望</h3>
+      <p>
+        それでも、AI医療の可能性は計り知れません。
+        世界保健機関（WHO）の試算によると、適切なAI活用により、
+        2030年までに年間数百万人もの命が救われる可能性があるとされています。
+      </p>
+      <p>
+        技術的な課題を一つひとつ丁寧に解決しながら、患者と医師双方にとって
+        より良い医療を実現するために、AIはこれからも進化し続けるでしょう。
+        私たちが目指すのは、AIと人間が協働することで、誰もが質の高い医療を受けられる社会の実現です。
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== RESULT SCREEN ===== -->
+<div id="screen-result" class="screen">
+  <h2>姿勢レポート</h2>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="s-label">平均角度</div>
+      <div class="s-val" id="res-avg">—</div>
+      <div class="s-unit">度</div>
+    </div>
+    <div class="stat-card">
+      <div class="s-label">最大角度</div>
+      <div class="s-val danger" id="res-max">—</div>
+      <div class="s-unit">度</div>
+    </div>
+    <div class="stat-card">
+      <div class="s-label">最小角度</div>
+      <div class="s-val" id="res-min">—</div>
+      <div class="s-unit">度</div>
+    </div>
   </div>
 
-  <div id="status" class="ok">センサー待機中...</div> 
+  <div class="stat-grid-2">
+    <div class="stat-card">
+      <div class="s-label">計測回数</div>
+      <div class="s-val" id="res-count">—</div>
+      <div class="s-unit">回</div>
+    </div>
+    <div class="stat-card">
+      <div class="s-label">警告回数</div>
+      <div class="s-val danger" id="res-warn">—</div>
+      <div class="s-unit">回</div>
+    </div>
+  </div>
 
-  <!-- iOSはユーザー操作で許可が必要なためボタンを用意 -->
-  <button id="startBtn" onclick="requestPermission()">センサー開始</button>
+  <div class="chart-card">
+    <div class="chart-title">角度の推移（3秒ごと）</div>
+    <canvas id="result-chart" height="130"></canvas>
+  </div>
 
-  <script>
-    function requestPermission() {
-      // iOS 13以降はDeviceOrientationEventの許可が必要
-      if (typeof DeviceOrientationEvent !== 'undefined' &&
-          typeof DeviceOrientationEvent.requestPermission === 'function') {
-        DeviceOrientationEvent.requestPermission()
-          .then(response => {
-            if (response === 'granted') {
-              window.addEventListener('deviceorientation', handleOrientation);
-              document.getElementById('startBtn').style.display = 'none';
-            } else {
-              alert('センサーの許可が拒否されました');
-            }
-          })
-          .catch(console.error);
-      } else {
-        // Android・PCはそのまま使える
-        window.addEventListener('deviceorientation', handleOrientation);
-        document.getElementById('startBtn').style.display = 'none';
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr><th>#</th><th>時刻</th><th>角度(°)</th><th>状態</th></tr>
+      </thead>
+      <tbody id="result-tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="result-btn-wrap">
+    <button class="btn-blue" id="btn-csv">CSVをダウンロード</button>
+    <button class="btn-outline" id="btn-restart">もう一度計測する</button>
+  </div>
+</div>
+
+<script>
+  // ===== STATE =====
+  let threshold  = 30;
+  let records    = [];          // {time, angle}
+  let intervalId = null;
+  let currentBeta = 0;
+  let overlayOn  = false;
+  let warnCount  = 0;
+
+  // ===== DOM =====
+  const $start  = document.getElementById('screen-start');
+  const $reader = document.getElementById('screen-reader');
+  const $result = document.getElementById('screen-result');
+  const $overlay = document.getElementById('overlay');
+
+  function show(el) {
+    [$start, $reader, $result].forEach(s => s.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // ===== SLIDER =====
+  const slider = document.getElementById('threshold-slider');
+  slider.addEventListener('input', () => {
+    threshold = +slider.value;
+    document.getElementById('threshold-num').textContent  = threshold;
+    document.getElementById('threshold-hint').textContent = threshold;
+  });
+
+  // ===== START =====
+  document.getElementById('btn-start').addEventListener('click', () => {
+    if (typeof DeviceOrientationEvent !== 'undefined' &&
+        typeof DeviceOrientationEvent.requestPermission === 'function') {
+      DeviceOrientationEvent.requestPermission()
+        .then(r => {
+          if (r === 'granted') { startSession(); }
+          else { alert('センサーの許可が必要です。'); }
+        }).catch(console.error);
+    } else {
+      startSession();
+    }
+  });
+
+  function startSession() {
+    records   = [];
+    warnCount = 0;
+    overlayOn = false;
+    $overlay.classList.remove('active');
+    window.addEventListener('deviceorientation', onOrientation);
+    show($reader);
+    // 3秒ごとに記録
+    intervalId = setInterval(() => {
+      records.push({ time: new Date(), angle: Math.abs(Math.round(currentBeta)) });
+    }, 3000);
+  }
+
+  // ===== ORIENTATION =====
+  function onOrientation(e) {
+    currentBeta = e.beta !== null ? e.beta : 0;
+    const tilt  = Math.abs(Math.round(currentBeta));
+
+    if (tilt > threshold) {
+      if (!overlayOn) {
+        overlayOn = true;
+        $overlay.classList.add('active');
+        warnCount++;
+      }
+    } else {
+      if (overlayOn) {
+        overlayOn = false;
+        $overlay.classList.remove('active');
       }
     }
+  }
 
-    function handleOrientation(event) {
-      // beta  = 前後の傾き（-180〜180°）
-      // gamma = 左右の傾き（-90〜90°）
-      const beta  = event.beta  !== null ? Math.round(event.beta)  : 0;
-      const gamma = event.gamma !== null ? Math.round(event.gamma) : 0;
+  // ===== FINISH =====
+  document.getElementById('btn-finish').addEventListener('click', () => {
+    clearInterval(intervalId);
+    window.removeEventListener('deviceorientation', onOrientation);
+    $overlay.classList.remove('active');
+    showResult();
+  });
 
-      document.getElementById('tilt').textContent = beta;
-      document.getElementById('roll').textContent = gamma;
-
-      // 角度に応じてオーバーレイの濃さを計算
-      const overlay = document.getElementById('overlay');
-      let opacity = 0;
-
-      if (beta <= 45) {
-        // 45度で透明(0)、0度で最大(0.6)になるよう計算
-        opacity = (45 - beta) / 45 * 0.6;
-        opacity = Math.max(0, Math.min(opacity, 0.6)); // 0〜0.6に制限
-      }
-
-      overlay.style.opacity = opacity;
-
-      // 姿勢の判定（前傾角度で判断）
-      const statusEl = document.getElementById('status');
-      const tiltEl = document.getElementById('tilt');
-
-      if (beta <= 30) {
-        statusEl.textContent = '🚨 姿勢：前傾しすぎ！';
-        statusEl.className = 'danger';
-        tiltEl.style.color = '#dc2626'; // 赤
-      } else if (beta <= 45) {
-        statusEl.textContent = '⚠️ 姿勢：やや前傾';
-        statusEl.className = 'warning';
-        tiltEl.style.color = '#ca8a04'; // 黄
-      } else {
-        statusEl.textContent = '✅ 姿勢：良好';
-        statusEl.className = 'ok';
-        tiltEl.style.color = '#2563eb'; // 青
-      }
+  // ===== RESULT =====
+  function showResult() {
+    if (!records.length) {
+      alert('データが記録されませんでした。');
+      show($start); return;
     }
-  </script>
+    const angles = records.map(r => r.angle);
+    const avg    = Math.round(angles.reduce((a,b)=>a+b,0) / angles.length);
+    const mx     = Math.max(...angles);
+    const mn     = Math.min(...angles);
+
+    document.getElementById('res-avg').textContent   = avg;
+    document.getElementById('res-max').textContent   = mx;
+    document.getElementById('res-min').textContent   = mn;
+    document.getElementById('res-count').textContent = records.length;
+    document.getElementById('res-warn').textContent  = warnCount;
+
+    // table
+    const tbody = document.getElementById('result-tbody');
+    tbody.innerHTML = '';
+    records.forEach((r, i) => {
+      const bad = r.angle > threshold;
+      const tr  = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${i+1}</td>
+        <td>${r.time.toLocaleTimeString('ja-JP')}</td>
+        <td class="${bad?'td-bad':''}">${r.angle}</td>
+        <td>${bad ? '⚠️ 傾きすぎ' : '✅ 良好'}</td>`;
+      tbody.appendChild(tr);
+    });
+
+    drawChart(angles);
+    show($result);
+  }
+
+  // ===== CHART =====
+  function drawChart(angles) {
+    const canvas = document.getElementById('result-chart');
+    const ctx    = canvas.getContext('2d');
+    const dpr    = window.devicePixelRatio || 1;
+    const W      = canvas.offsetWidth;
+    const H      = 130;
+    canvas.width  = W * dpr;
+    canvas.height = H * dpr;
+    ctx.scale(dpr, dpr);
+
+    const pad = { t:8, r:8, b:22, l:28 };
+    const cW  = W - pad.l - pad.r;
+    const cH  = H - pad.t - pad.b;
+    const maxV = Math.max(...angles, threshold + 5, 10);
+
+    ctx.clearRect(0, 0, W, H);
+
+    // grid
+    [0, 0.5, 1].forEach(f => {
+      const y = pad.t + cH*(1-f);
+      ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l+cW, y); ctx.stroke();
+      ctx.fillStyle = '#aaa'; ctx.font = '9px sans-serif'; ctx.textAlign = 'right';
+      ctx.fillText(Math.round(maxV*f), pad.l-3, y+3);
+    });
+
+    // threshold line
+    const thY = pad.t + cH*(1 - threshold/maxV);
+    ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 1.2;
+    ctx.setLineDash([4,3]);
+    ctx.beginPath(); ctx.moveTo(pad.l, thY); ctx.lineTo(pad.l+cW, thY); ctx.stroke();
+    ctx.setLineDash([]);
+
+    if (angles.length < 2) return;
+    const step = cW / (angles.length - 1);
+
+    // fill
+    const grad = ctx.createLinearGradient(0, pad.t, 0, pad.t+cH);
+    grad.addColorStop(0, 'rgba(37,99,235,0.18)');
+    grad.addColorStop(1, 'rgba(37,99,235,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(pad.l, pad.t+cH);
+    angles.forEach((a,i) => {
+      const x = pad.l + i*step;
+      const y = pad.t + cH*(1 - a/maxV);
+      i===0 ? ctx.lineTo(x,y) : ctx.lineTo(x,y);
+    });
+    ctx.lineTo(pad.l+cW, pad.t+cH); ctx.closePath(); ctx.fill();
+
+    // line
+    ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 2; ctx.lineJoin = 'round';
+    ctx.beginPath();
+    angles.forEach((a,i) => {
+      const x = pad.l + i*step;
+      const y = pad.t + cH*(1 - a/maxV);
+      i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+
+    // dots
+    angles.forEach((a,i) => {
+      const x = pad.l + i*step;
+      const y = pad.t + cH*(1 - a/maxV);
+      ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2);
+      ctx.fillStyle = a>threshold ? '#dc2626' : '#2563eb';
+      ctx.fill();
+    });
+  }
+
+  // ===== CSV =====
+  document.getElementById('btn-csv').addEventListener('click', () => {
+    const rows = [['#','時刻','角度(°)','状態']];
+    records.forEach((r,i) => rows.push([
+      i+1,
+      r.time.toLocaleString('ja-JP'),
+      r.angle,
+      r.angle > threshold ? '傾きすぎ' : '良好'
+    ]));
+    const csv  = '\uFEFF' + rows.map(r=>r.join(',')).join('\n');
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = `NeckGuard_${new Date().toLocaleDateString('ja-JP').replace(/\//g,'-')}.csv`;
+    a.click(); URL.revokeObjectURL(url);
+  });
+
+  // ===== RESTART =====
+  document.getElementById('btn-restart').addEventListener('click', () => {
+    clearInterval(intervalId);
+    window.removeEventListener('deviceorientation', onOrientation);
+    $overlay.classList.remove('active');
+    records=[]; warnCount=0; overlayOn=false;
+    show($start);
+  });
+</script>
 </body>
 </html>
