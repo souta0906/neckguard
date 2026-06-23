@@ -630,8 +630,8 @@
       tbody.appendChild(tr);
     });
 
-    drawChart(angles);
     show($result);
+    requestAnimationFrame(() => drawChart(angles));  // 表示後に描画
   }
 
   // ===== CHART =====
