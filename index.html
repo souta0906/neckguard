@@ -474,12 +474,12 @@
     </div>
     <div class="stat-card">
       <div class="s-label">最大角度</div>
-      <div class="s-val danger" id="res-max">—</div>
+      <div class="s-val" id="res-max">—</div>
       <div class="s-unit">度</div>
     </div>
     <div class="stat-card">
       <div class="s-label">最小角度</div>
-      <div class="s-val" id="res-min">—</div>
+      <div class="s-val danger" id="res-min">—</div>
       <div class="s-unit">度</div>
     </div>
   </div>
@@ -569,7 +569,7 @@
     // 3秒ごとに記録
     intervalId = setInterval(() => {
       records.push({ time: new Date(), angle: Math.abs(Math.round(currentBeta)) });
-    }, 3000);
+    }, 1000);
   }
 
   // ===== ORIENTATION =====
