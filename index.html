@@ -620,7 +620,7 @@
     const tbody = document.getElementById('result-tbody');
     tbody.innerHTML = '';
     records.forEach((r, i) => {
-      const bad = r.angle > threshold;
+      const bad = r.angle < (90 - threshold);
       const tr  = document.createElement('tr');
       tr.innerHTML = `
         <td>${i+1}</td>
@@ -700,7 +700,7 @@
       const x = pad.l + i*step;
       const y = pad.t + cH*(1 - a/maxV);
       ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2);
-      ctx.fillStyle = a>threshold ? '#dc2626' : '#2563eb';
+      ctx.fillStyle = a < (90 - threshold) ? '#dc2626' : '#2563eb';
       ctx.fill();
     });
   }
