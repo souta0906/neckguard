@@ -521,6 +521,7 @@
   // ===== STATE =====
   let threshold  = 30;
   let records    = [];          // {time, angle}
+  let grouped    = [];
   let intervalId = null;
   let currentBeta = 0;
   let overlayOn  = false;
@@ -605,7 +606,7 @@
       alert('データが記録されませんでした。');
       show($start); return;
     }
-    const grouped = [];
+    grouped = [];
     for (let i = 0; i < records.length; i += 10) {
       const slice = records.slice(i, i + 10);
       const avg10 = Math.round(slice.reduce((a, b) => a + b.angle, 0) / slice.length);
