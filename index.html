@@ -98,6 +98,24 @@
     }
     #btn-start:active { background: #1d4ed8; }
 
+.mode-btn {
+  flex: 1;
+  padding: 10px 8px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  border: 2px solid #d1d5db;
+  border-radius: 10px;
+  background: white;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.mode-active {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: white;
+}
+
     /* ===== READER SCREEN ===== */
     #screen-reader {
       flex-direction: column;
@@ -385,6 +403,14 @@
     <div class="slider-hint">前傾が <strong id="threshold-hint">30</strong>° を超えると白いオーバーレイを表示</div>
   </div>
 
+    <div class="card">
+    <div class="card-label">計測モード</div>
+    <div class="slider-row" style="justify-content: space-between; gap: 8px;">
+      <button id="btn-mode-overlay" class="mode-btn mode-active" onclick="setMode('overlay')">オーバーレイあり</button>
+      <button id="btn-mode-none" class="mode-btn" onclick="setMode('none')">オーバーレイなし</button>
+    </div>
+  </div>
+
   <button id="btn-start">センサー開始 → 記事を読む</button>
 </div>
 
@@ -462,6 +488,80 @@
   </div>
 </div>
 
+<!-- ===== READER SCREEN 2 (オーバーレイなし) ===== -->
+<div id="screen-reader2" class="screen">
+  <div class="reader-topbar">
+    <span class="topic-tag">環境・社会</span>
+    <button id="btn-finish2">読み終わった</button>
+  </div>
+  <div class="article-body">
+    <div class="article-kicker">環境・サステナビリティ</div>
+    <h1 class="article-title">海洋プラスチック問題：世界が挑む清浄な海への道</h1>
+    <div class="article-meta">2025年6月 &nbsp;·&nbsp; 読了目安 5分</div>
+    <p class="article-lead">
+      毎年800万トン以上のプラスチックが海に流れ込んでいるとされ、
+      海洋生態系への深刻な影響が世界的な問題となっています。
+      各国政府や企業、市民が一体となった取り組みが今まさに加速しています。
+    </p>
+    <div class="article-text">
+      <p>
+        海洋プラスチック汚染は、目に見える大きなごみだけの問題ではありません。
+        紫外線や波の力によって細かく砕かれた「マイクロプラスチック」が
+        海水中に無数に漂い、魚介類の体内に蓄積されることで、
+        最終的には人間の食卓にまで影響が及ぶことが明らかになっています。
+      </p>
+      <h3>深刻化する海洋汚染の実態</h3>
+      <p>
+        国連環境計画（UNEP）の報告によると、現在の海洋中のプラスチックごみの総量は
+        1億5000万トンを超えると推計されており、このままのペースで増加し続ければ
+        2050年には魚の総重量を上回るとも予測されています。
+        特に太平洋に形成された「ゴミのベルト」と呼ばれる巨大なごみ集積域は、
+        日本の国土面積の約4倍に相当する広さに達しています。
+      </p>
+      <p>
+        海洋生物への影響も深刻です。ウミガメやクジラ、海鳥などがプラスチック袋を
+        えさと間違えて食べてしまい、消化器官に詰まって命を落とすケースが
+        世界中で報告されています。また、漁業用のロープや網などの漁具が
+        海中に放置されることで、魚やイルカが絡まって溺死する「ゴーストフィッシング」
+        も深刻な問題となっています。
+      </p>
+      <blockquote>
+        「プラスチック汚染は気候変動と並ぶ、今世紀最大の環境危機のひとつだ」<br>
+        ―― UNEP事務局長 イ・ナ・ソ氏
+      </blockquote>
+      <h3>世界各国の取り組み</h3>
+      <p>
+        この問題に対し、各国は規制強化に乗り出しています。
+        欧州連合（EU）では2021年より使い捨てプラスチック製品の販売を禁止し、
+        ストローや綿棒、発泡スチロール製容器などが市場から姿を消しました。
+        日本でも2022年にプラスチック資源循環促進法が施行され、
+        企業に対してプラスチック使用量の削減と代替素材への転換が求められています。
+      </p>
+      <p>
+        民間企業の動きも活発です。大手飲料メーカー各社はペットボトルの
+        再生プラスチック使用率を高める目標を掲げ、
+        一部のファッションブランドは海洋回収プラスチックを原料にした
+        衣類の製造・販売を始めています。
+        また、AIと自律型ロボットを組み合わせた海底ごみ回収システムの
+        開発も各地で進んでいます。
+      </p>
+      <h3>市民にできること</h3>
+      <p>
+        しかし、問題の根本的な解決には一人ひとりの意識と行動の変化が不可欠です。
+        レジ袋やペットボトルの使用を減らし、マイバッグやマイボトルを持ち歩くことは、
+        すぐに始められる取り組みです。
+        また、海岸清掃活動への参加や、プラスチック削減に取り組む企業の製品を
+        選んで購入することも、大きな変化につながります。
+      </p>
+      <p>
+        研究者たちはプラスチックを分解する酵素や微生物の発見・改良にも取り組んでおり、
+        将来的には生物学的な手法で海洋プラスチックを処理できる可能性も出てきています。
+        技術革新と社会変革の両輪で、次の世代に美しい海を残すための挑戦は続いています。
+      </p>
+    </div>
+  </div>
+</div>
+
 <!-- ===== RESULT SCREEN ===== -->
 <div id="screen-result" class="screen">
   <h2>姿勢レポート</h2>
@@ -526,15 +626,17 @@
   let currentBeta = 0;
   let overlayOn  = false;
   let warnCount  = 0;
+  let currentMode = 'overlay';
 
   // ===== DOM =====
   const $start  = document.getElementById('screen-start');
   const $reader = document.getElementById('screen-reader');
+  const $reader2 = document.getElementById('screen-reader2');
   const $result = document.getElementById('screen-result');
   const $overlay = document.getElementById('overlay');
 
   function show(el) {
-    [$start, $reader, $result].forEach(s => s.classList.remove('active'));
+    [$start, $reader, $reader2, $result].forEach(s => s.classList.remove('active'));
     el.classList.add('active');
   }
 
@@ -545,6 +647,12 @@
     document.getElementById('threshold-num').textContent  = threshold;
     document.getElementById('threshold-hint').textContent = threshold;
   });
+
+  function setMode(mode) {
+    currentMode = mode;
+    document.getElementById('btn-mode-overlay').classList.toggle('mode-active', mode === 'overlay');
+    document.getElementById('btn-mode-none').classList.toggle('mode-active', mode === 'none');
+  }
 
   // ===== START =====
   document.getElementById('btn-start').addEventListener('click', () => {
@@ -566,7 +674,11 @@
     overlayOn = false;
     $overlay.classList.remove('active');
     window.addEventListener('deviceorientation', onOrientation);
-    show($reader);
+    if (currentMode === 'overlay') {
+      show($reader);
+    } else {
+      show($reader2);
+    }
     // 0.1秒ごとに記録
     intervalId = setInterval(() => {
       records.push({ time: new Date(), angle: Math.abs(Math.round(currentBeta)) });
@@ -581,7 +693,7 @@
     if (tilt < (90 - threshold)) {
       if (!overlayOn) {
         overlayOn = true;
-        $overlay.classList.add('active');
+        if (currentMode === 'overlay') $overlay.classList.add('active');  // モードで分岐
         warnCount++;
       }
     } else {
@@ -594,6 +706,13 @@
 
   // ===== FINISH =====
   document.getElementById('btn-finish').addEventListener('click', () => {
+    clearInterval(intervalId);
+    window.removeEventListener('deviceorientation', onOrientation);
+    $overlay.classList.remove('active');
+    showResult();
+  });
+
+  document.getElementById('btn-finish2').addEventListener('click', () => {
     clearInterval(intervalId);
     window.removeEventListener('deviceorientation', onOrientation);
     $overlay.classList.remove('active');
