@@ -715,7 +715,7 @@
   // ===== CSV =====
   document.getElementById('btn-csv').addEventListener('click', () => {
     const rows = [['#','時刻','角度(°)','状態']];
-    grouped.forEach((r,i) => rows.push([
+    records.forEach((r,i) => rows.push([
       i+1,
       r.time.toLocaleString('ja-JP'),
       r.angle,
