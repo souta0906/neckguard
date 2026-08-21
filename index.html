@@ -658,14 +658,6 @@
     <canvas id="result-chart" height="130"></canvas>
   </div>
 
-  <div class="table-card">
-    <table>
-      <thead>
-        <tr><th>#</th><th>時刻</th><th>角度(°)</th><th>状態</th></tr>
-      </thead>
-      <tbody id="result-tbody"></tbody>
-    </table>
-  </div>
 
   <div class="result-btn-wrap">
     <button class="btn-blue" id="btn-csv">CSVをダウンロード</button>
@@ -795,22 +787,10 @@
     document.getElementById('res-avg').textContent   = avg;
     document.getElementById('res-max').textContent   = mx;
     document.getElementById('res-min').textContent   = mn;
-    document.getElementById('res-count').textContent = grouped.length;
+    document.getElementById('res-count').textContent = records.length;
     document.getElementById('res-warn').textContent  = warnCount;
 
-    // table
-    const tbody = document.getElementById('result-tbody');
-    tbody.innerHTML = '';
-    grouped.forEach((r, i) => {
-      const bad = r.angle < (90 - threshold);
-      const tr  = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${i+1}</td>
-        <td>${r.time.toLocaleTimeString('ja-JP')}</td>
-        <td class="${bad?'td-bad':''}">${r.angle}</td>
-        <td>${bad ? '⚠️ 傾きすぎ' : '✅ 良好'}</td>`;
-      tbody.appendChild(tr);
-    });
+  
 
     show($result);
     requestAnimationFrame(() => drawChart(angles));  // 表示後に描画
@@ -888,14 +868,33 @@
   }
 
   // ===== CSV =====
-  document.getElementById('btn-csv').addEventListener('click', () => {
-    const rows = [['#','時刻','角度(°)','状態']];
+   document.getElementById('btn-csv').addEventListener('click', () => {
+    // サマリー行
+    const angles = grouped.map(r => r.angle);
+    const avg    = Math.round(angles.reduce((a,b)=>a+b,0) / angles.length);
+    const mx     = Math.max(...angles);
+    const mn     = Math.min(...angles);
+
+    const summary = [
+      ['【サマリー】',''],
+      ['平均角度(°)', avg],
+      ['最大角度(°)', mx],
+      ['最小角度(°)', mn],
+      ['計測回数(回)', grouped.length],
+      ['警告回数(回)', warnCount],
+      ['',''],  // 空行
+      ['【生データ】',''],
+      ['#','時刻','角度(°)','状態']
+    ];
+
+    const rows = [...summary];
     records.forEach((r,i) => rows.push([
       i+1,
       r.time.toLocaleString('ja-JP'),
       r.angle,
-      r.angle > threshold ? '傾きすぎ' : '良好'
+      r.angle < (90 - threshold) ? '傾きすぎ' : '良好'
     ]));
+
     const csv  = '\uFEFF' + rows.map(r=>r.join(',')).join('\n');
     const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
     const url  = URL.createObjectURL(blob);
