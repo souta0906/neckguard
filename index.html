@@ -56,30 +56,7 @@
       text-align: left;
     }
 
-    /* threshold slider */
-    .slider-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .slider-row input[type=range] {
-      flex: 1;
-      accent-color: #2563eb;
-      height: 4px;
-    }
-    .slider-val {
-      font-size: 1.6rem;
-      font-weight: bold;
-      color: #2563eb;
-      min-width: 52px;
-      text-align: right;
-    }
-    .slider-hint {
-      font-size: 0.75rem;
-      color: #aaa;
-      margin-top: 8px;
-      text-align: left;
-    }
+    
 
     /* start button */
     #btn-start {
@@ -223,6 +200,16 @@
       font-style: italic;
       margin: 20px 0;
     }
+
+    .art-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .btn-row { display: flex; gap: 8px; }
+    #yellow-signal {
+      position: fixed; top: 0; left: 0; right: 0; height: 6px;
+      background: #facc15; opacity: 0; pointer-events: none;
+      transition: opacity 0.5s ease; z-index: 50;
+    }
+    #yellow-signal.active { opacity: 0.9; }
+    #calib-status { font-size: 0.75rem; color: #888; }
 
     /* ===== POSTURE OVERLAY ===== */
     #overlay {
@@ -396,6 +383,7 @@
 </head>
 <body>
 
+<div id="yellow-signal"></div>
 <!-- ===== OVERLAY ===== -->
 <div id="overlay">
   <div class="overlay-icon">🧍</div>
@@ -408,213 +396,40 @@
   <h1>NeckGuard ニュースリーダー</h1>
   <p>記事を読みながら、スマホの傾きを自動で記録。<br>姿勢が崩れたらお知らせします。</p>
 
-  <div class="card">
-    <div class="card-label">警告する傾き角度のしきい値</div>
-    <div class="slider-row">
-      <input type="range" id="threshold-slider" min="0" max="90" value="30" step="1">
-      <div class="slider-val"><span id="threshold-num">30</span>°</div>
+   <div class="card">
+    <div class="card-label">記事を選択</div>
+    <div class="art-grid">
+      <button class="mode-btn mode-active" data-art="1">記事1</button>
+      <button class="mode-btn" data-art="2">記事2</button>
+      <button class="mode-btn" data-art="3">記事3</button>
+      <button class="mode-btn" data-art="4">記事4</button>
     </div>
-    <div class="slider-hint">前傾が <strong id="threshold-hint">30</strong>° を超えると白いオーバーレイを表示</div>
+    <div class="slider-hint" id="art-hint">記事1：閾値設定用（フィードバックなし）</div>
   </div>
 
-    <div class="card">
-    <div class="card-label">計測モード</div>
-    <div class="slider-row" style="justify-content: space-between; gap: 8px;">
-      <button id="btn-mode-overlay" class="mode-btn mode-active" onclick="setMode('overlay')">オーバーレイあり</button>
-      <button id="btn-mode-none" class="mode-btn" onclick="setMode('none')">オーバーレイなし</button>
+  <div class="card" id="card-feedback" style="display:none">
+    <div class="card-label">姿勢フィードバック</div>
+    <div class="btn-row">
+      <button id="btn-fb-on" class="mode-btn" onclick="setFeedback(true)">ON</button>
+      <button id="btn-fb-off" class="mode-btn mode-active" onclick="setFeedback(false)">OFF</button>
     </div>
+    <div class="slider-hint">現在の閾値：<strong id="th-display">未設定</strong>
+      <a href="#" id="th-reset" style="margin-left:8px;color:#2563eb">リセット</a></div>
   </div>
-
-  <button id="btn-start">センサー開始 → 記事を読む</button>
-</div>
 
 <!-- ===== READER SCREEN ===== -->
 <div id="screen-reader" class="screen">
   <div class="reader-topbar">
-    <span class="topic-tag">テクノロジー</span>
+    <span class="topic-tag" id="r-tag"></span>
+    <span id="calib-status"></span>
     <button id="btn-finish">読み終わった</button>
   </div>
   <div class="article-body">
-    <div class="article-kicker">AI・科学技術</div>
-    <h1 class="article-title">人工知能が変える医療の未来：診断から治療まで</h1>
-    <div class="article-meta">2025年6月 &nbsp;·&nbsp; 読了目安 5分</div>
-        <p class="article-lead">
-      人工知能（AI）技術の急速な進化が、医療の現場に革命的な変化をもたらしています。
-      画像診断の精度向上から個別化医療の実現まで、その影響は幅広い領域に及んでいます。
-      医師とAIが協働する新しい医療の時代が、今まさに始まろうとしています。
-    </p>
-    <div class="article-text">
-      <p>
-        近年、ディープラーニングを活用した医療画像解析システムが世界中の病院で導入され始めています。
-        これらのシステムは、放射線科医や病理医が見落とす可能性のある微細な異常を高精度で検出し、
-        早期発見・早期治療につなげることが期待されています。
-        特に、がんの早期発見においてAIは目覚ましい成果を上げており、
-        従来の検査では気づきにくかったごく初期の病変を捉えることが可能になっています。
-      </p>
-      <h3>画像診断における飛躍的な進歩</h3>
-      <p>
-        米国のスタンフォード大学が開発したAIシステムは、胸部X線画像から14種類の肺疾患を
-        放射線科医と同等以上の精度で診断できることが実証されました。
-        また、皮膚科領域では、スマートフォンのカメラで撮影した皮膚の画像から
-        悪性黒色腫を検出するAIが、皮膚科専門医と遜色ない正確さを示しています。
-        こうした技術は、専門医が少ない地方や途上国の医療格差を埋める手段としても
-        大きな注目を集めています。
-      </p>
-      <p>
-        日本でも、消化器内視鏡検査においてAIを活用したポリープ検出システムが
-        一部の医療機関で実用化されており、見逃しを大幅に減少させる効果が確認されています。
-        このシステムは内視鏡医がリアルタイムで診断する際に、AIが同時に画像を解析して
-        ポリープの疑いがある部位を自動でマーキングします。
-        熟練医と同等レベルの精度を安定して提供できる点が高く評価されています。
-      </p>
-      <blockquote>
-        「AIは医師に取って代わるのではなく、医師の能力を拡張するツールとして機能する」<br>
-        ―― 東京大学医学部 山田教授
-      </blockquote>
-      <h3>個別化医療とゲノム解析</h3>
-      <p>
-        AIの活躍は画像診断にとどまりません。ゲノム解析の分野では、
-        膨大な遺伝子データを解析してがんの発症リスクや薬の効果を予測するシステムが開発されています。
-        患者一人ひとりの遺伝的特性に合わせた「個別化医療」の実現に向けて、
-        AIは不可欠なツールとなりつつあります。
-        同じ病名でも患者によって最適な治療法は異なり、AIはその判断を強力に支援します。
-      </p>
-      <p>
-        製薬企業もAIを積極的に活用しています。新薬開発では、
-        候補となる化合物の数が膨大であるため、従来は臨床試験にたどり着くまでに
-        10年以上かかることも珍しくありませんでした。しかしAIによるシミュレーションにより、
-        有望な候補化合物を短期間で絞り込むことが可能になり、
-        開発期間の大幅な短縮と費用削減が期待されています。
-        実際に、AIを活用した創薬プロセスで開発された薬が臨床試験に進む事例も出てきています。
-      </p>
-      <h3>医療現場での活用と課題</h3>
-      <p>
-        救急医療の現場でもAIの導入が進んでいます。患者のバイタルデータや
-        電子カルテの情報をリアルタイムで解析し、容態が急変するリスクを事前に予測する
-        システムが実用化されつつあります。これにより、看護師や医師が適切なタイミングで
-        介入できるようになり、重篤化を未然に防ぐ効果が期待されています。
-      </p>
-      <p>
-        一方で、AIの医療応用には解決すべき課題も多く残されています。
-        医療データのプライバシー保護、AIの判断に対する説明責任、
-        そして医師とAIの役割分担をどのように設計するかという問題が世界的に議論されています。
-        特に重要なのは、AIが誤った診断を下した場合の責任の所在です。
-        現行の法律では、医療行為の責任は医師が負うことになっていますが、
-        AIが診断プロセスに深く関わる場合、この枠組みだけでは対応しきれない
-        事態も生じる可能性があります。
-      </p>
-      <h3>未来への展望</h3>
-      <p>
-        それでも、AI医療の可能性は計り知れません。
-        世界保健機関（WHO）の試算によると、適切なAI活用により、
-        2030年までに年間数百万人もの命が救われる可能性があるとされています。
-        日本においても、高齢化社会における医療資源の効率化という観点から、
-        AI医療への期待はますます高まっています。
-      </p>
-      <p>
-        技術的な課題を一つひとつ丁寧に解決しながら、患者と医師双方にとって
-        より良い医療を実現するために、AIはこれからも進化し続けるでしょう。
-        私たちが目指すのは、AIと人間が協働することで、
-        誰もが質の高い医療を受けられる社会の実現です。
-        その未来はもう、すぐそこまで来ています。
-      </p>
-    </div>
-  </div>
-</div>
-
-<!-- ===== READER SCREEN 2 (オーバーレイなし) ===== -->
-<div id="screen-reader2" class="screen">
-  <div class="reader-topbar">
-    <span class="topic-tag">環境・社会</span>
-    <button id="btn-finish2">読み終わった</button>
-  </div>
-  <div class="article-body">
-    <div class="article-kicker">環境・サステナビリティ</div>
-    <h1 class="article-title">海洋プラスチック問題：世界が挑む清浄な海への道</h1>
-    <div class="article-meta">2025年6月 &nbsp;·&nbsp; 読了目安 5分</div>
-       <p class="article-lead">
-      毎年800万トン以上のプラスチックが海に流れ込んでいるとされ、
-      海洋生態系への深刻な影響が世界的な問題となっています。
-      各国政府や企業、市民が一体となった取り組みが今まさに加速しており、
-      技術革新と社会変革の両輪でこの難題に挑んでいます。
-    </p>
-    <div class="article-text">
-      <p>
-        海洋プラスチック汚染は、目に見える大きなごみだけの問題ではありません。
-        紫外線や波の力によって細かく砕かれた「マイクロプラスチック」が
-        海水中に無数に漂い、魚介類の体内に蓄積されることで、
-        最終的には人間の食卓にまで影響が及ぶことが明らかになっています。
-        近年の研究では、人間の血液や肺からもマイクロプラスチックが検出されており、
-        健康への影響を懸念する声が高まっています。
-      </p>
-      <h3>深刻化する海洋汚染の実態</h3>
-      <p>
-        国連環境計画（UNEP）の報告によると、現在の海洋中のプラスチックごみの総量は
-        1億5000万トンを超えると推計されており、このままのペースで増加し続ければ
-        2050年には魚の総重量を上回るとも予測されています。
-        特に太平洋に形成された「ゴミのベルト」と呼ばれる巨大なごみ集積域は、
-        日本の国土面積の約4倍に相当する広さに達しています。
-        この問題は特定の国だけの話ではなく、海流によってごみが世界中に拡散するため、
-        国際的な連携なしには解決が難しい構造的な課題となっています。
-      </p>
-      <p>
-        海洋生物への影響も深刻です。ウミガメやクジラ、海鳥などがプラスチック袋を
-        えさと間違えて食べてしまい、消化器官に詰まって命を落とすケースが
-        世界中で報告されています。また、漁業用のロープや網などの漁具が
-        海中に放置されることで、魚やイルカが絡まって溺死する「ゴーストフィッシング」
-        も深刻な問題となっています。
-        生態系全体への影響は計り知れず、長期的な食料安全保障とも密接に関わっています。
-      </p>
-      <blockquote>
-        「プラスチック汚染は気候変動と並ぶ、今世紀最大の環境危機のひとつだ」<br>
-        ―― UNEP事務局長 イ・ナ・ソ氏
-      </blockquote>
-      <h3>世界各国の取り組み</h3>
-      <p>
-        この問題に対し、各国は規制強化に乗り出しています。
-        欧州連合（EU）では2021年より使い捨てプラスチック製品の販売を禁止し、
-        ストローや綿棒、発泡スチロール製容器などが市場から姿を消しました。
-        日本でも2022年にプラスチック資源循環促進法が施行され、
-        企業に対してプラスチック使用量の削減と代替素材への転換が求められています。
-        韓国やカナダでも同様の規制が相次いで導入されており、
-        国際的な規制の流れは加速しています。
-      </p>
-      <p>
-        民間企業の動きも活発です。大手飲料メーカー各社はペットボトルの
-        再生プラスチック使用率を高める目標を掲げ、
-        一部のファッションブランドは海洋回収プラスチックを原料にした
-        衣類の製造・販売を始めています。
-        また、AIと自律型ロボットを組み合わせた海底ごみ回収システムの
-        開発も各地で進んでいます。
-        オランダの非営利団体「オーシャン・クリーンアップ」は、
-        大型の回収装置を太平洋のゴミベルトに展開し、大量のごみ回収に成功しています。
-      </p>
-      <h3>技術革新による新たなアプローチ</h3>
-      <p>
-        科学の分野でも画期的な研究が進んでいます。
-        研究者たちはプラスチックを分解する酵素や微生物の発見・改良に取り組んでおり、
-        将来的には生物学的な手法で海洋プラスチックを効率よく処理できる
-        可能性が出てきています。2016年に日本の研究チームが発見した
-        「イデオネラ・サカイエンシス」という細菌は、PETプラスチックを
-        分解する能力を持つことで世界的に注目を集めました。
-        こうした生物学的アプローチは、化学的・物理的な回収手法と組み合わせることで、
-        より効果的な対策につながると期待されています。
-      </p>
-      <h3>市民にできること</h3>
-      <p>
-        しかし、問題の根本的な解決には一人ひとりの意識と行動の変化が不可欠です。
-        レジ袋やペットボトルの使用を減らし、マイバッグやマイボトルを持ち歩くことは、
-        すぐに始められる取り組みです。
-        また、海岸清掃活動への参加や、プラスチック削減に取り組む企業の製品を
-        選んで購入するという「消費者行動」も、企業の方針を変える大きな力になります。
-      </p>
-      <p>
-        技術革新と社会変革の両輪で、次の世代に美しい海を残すための挑戦は続いています。
-        一人の力は小さくても、世界中の人々が同じ方向を向いて行動することで、
-        海洋プラスチック問題は必ず解決できると多くの専門家は信じています。
-        私たちの選択と行動が、海の未来を決めるのです。
-      </p>
-    </div>
+    <div class="article-kicker" id="r-kicker"></div>
+    <h1 class="article-title" id="r-title"></h1>
+    <div class="article-meta" id="r-meta"></div>
+    <p class="article-lead" id="r-lead"></p>
+    <div class="article-text" id="r-body"></div>
   </div>
 </div>
 
@@ -640,15 +455,20 @@
     </div>
   </div>
 
-  <div class="stat-grid-2">
+    <div class="stat-grid">
     <div class="stat-card">
       <div class="s-label">計測回数</div>
       <div class="s-val" id="res-count">—</div>
       <div class="s-unit">回</div>
     </div>
     <div class="stat-card">
-      <div class="s-label">警告回数</div>
-      <div class="s-val danger" id="res-warn">—</div>
+      <div class="s-label">黄色信号</div>
+      <div class="s-val danger" id="res-yellow">—</div>
+      <div class="s-unit">回</div>
+    </div>
+    <div class="stat-card">
+      <div class="s-label">赤信号</div>
+      <div class="s-val danger" id="res-red">—</div>
       <div class="s-unit">回</div>
     </div>
   </div>
@@ -667,43 +487,140 @@
 
 <script>
   // ===== STATE =====
-  let threshold  = 30;
-  let records    = [];          // {time, angle}
-  let grouped    = [];
-  let intervalId = null;
-  let currentBeta = 0;
-  let overlayOn  = false;
-  let warnCount  = 0;
-  let currentMode = 'overlay';
+  const CAL_START = 3000, CAL_END = 93000;   // 閾値算出区間(ms)
+  const YELLOW_MS = 500, RED_MS = 3000;      // 閾値超過からの経過(ms)
+  let threshold = null;
+  try { const t = localStorage.getItem('ng_threshold'); if (t !== null) threshold = +t; } catch(e){}
+  let records = [], grouped = [];
+  let intervalId = null, startTime = 0;
+  let currentBeta = 0, currentArticle = 1, feedbackOn = false;
+  let calibAngles = [], calibDone = false;
+  let belowSince = null, evY = 0, evR = 0;
 
   // ===== DOM =====
-  const $start  = document.getElementById('screen-start');
-  const $reader = document.getElementById('screen-reader');
-  const $reader2 = document.getElementById('screen-reader2');
-  const $result = document.getElementById('screen-result');
+  const $start   = document.getElementById('screen-start');
+  const $reader  = document.getElementById('screen-reader');
+  const $result  = document.getElementById('screen-result');
   const $overlay = document.getElementById('overlay');
+  const $yellow  = document.getElementById('yellow-signal');
 
   function show(el) {
-    [$start, $reader, $reader2, $result].forEach(s => s.classList.remove('active'));
+    [$start, $reader, $result].forEach(s => s.classList.remove('active'));
     el.classList.add('active');
   }
 
-  // ===== SLIDER =====
-  const slider = document.getElementById('threshold-slider');
-  slider.addEventListener('input', () => {
-    threshold = +slider.value;
-    document.getElementById('threshold-num').textContent  = threshold;
-    document.getElementById('threshold-hint').textContent = threshold;
-  });
-
-  function setMode(mode) {
-    currentMode = mode;
-    document.getElementById('btn-mode-overlay').classList.toggle('mode-active', mode === 'overlay');
-    document.getElementById('btn-mode-none').classList.toggle('mode-active', mode === 'none');
+  // ===== 記事選択 / フィードバック切替 =====
+  function updateThDisplay() {
+    document.getElementById('th-display').textContent = threshold === null ? '未設定' : threshold.toFixed(1) + '°';
   }
+  function setFeedback(on) {
+    feedbackOn = on;
+    document.getElementById('btn-fb-on').classList.toggle('mode-active', on);
+    document.getElementById('btn-fb-off').classList.toggle('mode-active', !on);
+  }
+  document.querySelectorAll('[data-art]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentArticle = +btn.dataset.art;
+      document.querySelectorAll('[data-art]').forEach(b => b.classList.toggle('mode-active', b === btn));
+      document.getElementById('card-feedback').style.display = currentArticle === 1 ? 'none' : 'block';
+      document.getElementById('art-hint').textContent = currentArticle === 1
+        ? '記事1：閾値設定用（フィードバックなし）' : '記事' + currentArticle;
+      if (currentArticle === 1) setFeedback(false);
+      updateThDisplay();
+    });
+  });
+  document.getElementById('th-reset').addEventListener('click', e => {
+    e.preventDefault();
+    threshold = null;
+    try { localStorage.removeItem('ng_threshold'); } catch(e){}
+    updateThDisplay();
+  });
+  updateThDisplay();
 
+  // ===== 記事データ =====
+  const ARTICLES = {
+    1: { tag:'テクノロジー', kicker:'AI・科学技術', title:'人工知能が変える医療の未来：診断から治療まで', meta:'2025年6月 · 読了目安 4分',
+      lead:`人工知能（AI）技術の急速な進化が、医療の現場に大きな変化をもたらしています。画像診断の精度向上から個別化医療、創薬、救急対応まで、その影響は幅広い領域に及んでいます。医師とAIが協働する新しい医療の形が、いま現実のものになりつつあります。`,
+      body:`
+<p>近年、ディープラーニングを活用した医療画像解析システムが、世界中の病院で導入され始めています。これらのシステムは、放射線科医や病理医が見落とす可能性のある微細な異常を高い精度で検出し、早期発見・早期治療につなげることが期待されています。特にがんの分野では、従来の検査では気づきにくかったごく初期の病変を捉える事例が報告されており、AIは検診の質を底上げする存在として注目されています。</p>
+<h3>画像診断における大きな進歩</h3>
+<p>米国のスタンフォード大学の研究チームが開発したAIは、胸部X線画像から十数種類の肺疾患を、放射線科医と同等の水準で判定できることを示しました。皮膚科の領域でも、皮膚の画像から悪性黒色腫を見分けるAIが、専門医に劣らない正確さを示したという報告があります。こうした技術は、専門医が少ない地方や、医療資源が限られた国々で診断の格差を縮める手段としても期待されています。</p>
+<p>日本でも、消化器の内視鏡検査にAIを組み込んだポリープ検出システムが、一部の医療機関で実用化されています。医師が検査をしながらリアルタイムで画像を見ているとき、AIが同時に映像を解析し、ポリープの疑いがある部位を画面上に自動で表示します。経験の浅い医師でも見逃しを減らしやすくなる点が評価されており、検査の品質を均一に保つ効果も期待されています。大切なのは、最終的な判断を下すのはあくまで医師であり、AIはその目を補う役割を担っているということです。</p>
+<h3>個別化医療とゲノム解析</h3>
+<p>AIの活躍は画像診断にとどまりません。ゲノム解析の分野では、膨大な遺伝子データを読み解き、病気の発症リスクや薬の効きやすさを予測する研究が進んでいます。同じ病名であっても、患者一人ひとりの体質や遺伝的特徴によって、最適な治療法は異なります。AIはそのばらつきを整理し、医師が治療方針を考える際の有力な材料を提供します。「その人に合った医療」を実現するための基盤として、AIは欠かせない存在になりつつあります。</p>
+<p>製薬の現場でもAIの活用が広がっています。新薬の開発では、候補となる化合物の数があまりに多いため、臨床試験にたどり着くまでに十年以上かかることも珍しくありませんでした。AIによるシミュレーションを使えば、有望な候補を短期間で絞り込むことができ、開発期間と費用の削減が見込まれます。実際に、AIを活用して設計された薬が臨床試験の段階に進む例も、少しずつ現れています。</p>
+<h3>医療現場での活用と課題</h3>
+<p>救急や入院の現場では、患者のバイタルデータや電子カルテの情報を継続的に解析し、容態が急に悪化するリスクを事前に知らせるシステムが導入され始めています。看護師や医師が適切なタイミングで介入できれば、重症化を防げる可能性が高まります。人手が不足しがちな現場にとって、こうした「気づきの支援」は大きな助けになります。</p>
+<p>一方で、解決すべき課題も多く残されています。医療データは極めて繊細な個人情報であり、その保護は大前提です。また、AIがなぜその判断に至ったのかを人間が理解できなければ、医師も患者も安心して結果を受け入れられません。さらに、AIの判断が誤っていた場合に誰が責任を負うのかという問題も、世界的に議論が続いています。現行の制度では医療行為の責任は医師が負うとされていますが、AIが診断の過程に深く関わるようになれば、既存の枠組みだけでは対応しきれない場面も出てくるでしょう。</p>
+<h3>未来への展望</h3>
+<p>日本では高齢化が進み、医療を必要とする人が増える一方で、支える人材は限られています。その中で、AIによる業務の効率化や診療の支援は、医療の質を保つための現実的な選択肢として期待が高まっています。</p>
+<p>技術的な課題や制度上の課題を一つひとつ丁寧に解決しながら、患者と医師の双方にとってより良い医療を実現すること。AIと人間が協働することで、誰もが質の高い医療を受けられる社会をめざす歩みは、すでに始まっています。</p>` },
+
+    2: { tag:'環境・社会', kicker:'環境・サステナビリティ', title:'海洋プラスチック問題：世界が挑む清浄な海への道', meta:'2025年6月 · 読了目安 4分',
+      lead:`毎年800万トン以上のプラスチックが海に流れ込んでいるとされ、海洋生態系への深刻な影響が世界的な課題となっています。各国の政府や企業、そして市民が一体となった取り組みが加速しており、技術革新と社会の変革という両輪で、この難題に挑んでいます。`,
+      body:`
+<p>海洋プラスチック汚染は、目に見える大きなごみだけの問題ではありません。紫外線や波の力によって細かく砕かれた「マイクロプラスチック」が海水中に無数に漂い、魚介類の体内に蓄積されることで、最終的には私たちの食卓にまで影響が及ぶ可能性が指摘されています。近年の研究では、人間の血液や肺などからもマイクロプラスチックが検出されたという報告があり、健康への影響を懸念する声が高まっています。</p>
+<h3>深刻化する海洋汚染の実態</h3>
+<p>国際機関の報告などによると、海洋中に存在するプラスチックごみの総量は1億トンを超えると推計されています。このままのペースで流入が続けば、2050年には重量で魚を上回るとする試算もあります。太平洋には、海流の作用でごみが集まる「太平洋ごみベルト」と呼ばれる海域があり、その広さは日本の国土面積の数倍に達するといわれています。ごみは海流に乗って世界中に拡散するため、一国だけの努力では解決できない、国際的な連携が不可欠な課題です。</p>
+<p>海洋生物への影響も深刻です。ウミガメやクジラ、海鳥などが、プラスチック袋をえさと間違えて食べてしまい、消化器官を詰まらせて命を落とすケースが世界各地で報告されています。また、海中に放置された漁網やロープに魚やイルカが絡まってしまう「ゴーストフィッシング」も大きな問題です。生態系全体への影響は計り知れず、長期的には私たちの食料の安全保障とも深く関わってきます。</p>
+<h3>世界各国の取り組み</h3>
+<p>この問題に対し、各国は規制の強化に乗り出しています。欧州連合（EU）は2021年から、ストローや綿棒、発泡スチロール製の容器など、代替品のある使い捨てプラスチック製品の販売を禁止しました。日本でも2020年にレジ袋の有料化が始まり、2022年にはプラスチック資源循環促進法が施行されて、事業者に使用量の削減や再利用の促進が求められるようになりました。韓国やカナダなどでも同様の規制が相次いで導入され、国際的な流れは確実に加速しています。</p>
+<p>民間企業の動きも活発です。大手飲料メーカーは、ペットボトルに使う再生プラスチックの割合を高める目標を掲げ、一部のファッションブランドは、海から回収したプラスチックを原料にした衣類の販売を始めています。オランダの非営利団体「オーシャン・クリーンアップ」のように、大型の回収装置を使って海上や河川のごみを集める取り組みも各地で進んでいます。</p>
+<h3>技術革新による新たなアプローチ</h3>
+<p>科学の分野でも、画期的な研究が進んでいます。研究者たちは、プラスチックを分解する酵素や微生物の発見と改良に取り組んでいます。2016年に日本の研究チームが報告した細菌「イデオネラ・サカイエンシス」は、PET（ペット）プラスチックを分解する能力を持つことで、世界的に注目を集めました。こうした生物学的な手法は、回収などの物理的な対策と組み合わせることで、より効果的な解決策につながると期待されています。ただし、実用化には効率やコストなど、まだ乗り越えるべき壁があります。</p>
+<h3>私たちにできること</h3>
+<p>問題の根本的な解決には、一人ひとりの意識と行動の変化が欠かせません。マイバッグやマイボトルを持ち歩き、使い捨てのプラスチックを減らすことは、今日から始められる取り組みです。海岸清掃への参加や、削減に取り組む企業の商品を選んで買うという「消費者としての行動」も、企業の方針を変える力になります。</p>
+<p>技術と社会の両面から、次の世代に美しい海を残すための挑戦は続いています。一人の力は小さくても、多くの人が同じ方向を向いて行動すれば、状況は変えられるはずです。私たちの日々の選択が、海の未来を形づくっています。</p>` },
+
+    3: { tag:'健康・科学', kicker:'睡眠・脳科学', title:'睡眠は記憶をどう育てるか：学びを支える「眠りの力」', meta:'2025年6月 · 読了目安 4分',
+      lead:`夜遅くまで勉強するより、しっかり眠ったほうが成績は伸びる。そう聞いたことがある人は多いでしょう。近年の研究では、睡眠は単なる休息ではなく、日中に得た情報を整理して記憶として定着させる、能動的な時間であることが明らかになってきました。`,
+      body:`
+<p>私たちの眠りは、一晩中同じ状態が続いているわけではありません。眠りに入ると、まず深い眠りである「ノンレム睡眠」が訪れ、その後、脳が活発に働く「レム睡眠」が現れます。この二つが約90分の周期で入れ替わりながら、一晩に数回繰り返されます。それぞれの段階には異なる役割があり、バランスよく経験することが大切だと考えられています。</p>
+<h3>眠っている間に起きていること</h3>
+<p>記憶の研究では、日中に学んだ内容は、まず脳の「海馬」という部位に一時的に保存され、睡眠中に整理されながら、長期的に保管される領域へと移されていくと考えられています。特に深いノンレム睡眠の間は、海馬と大脳皮質の間で神経活動が繰り返し再生されるような現象が観察されており、これが記憶の定着を助けているという見方が有力です。</p>
+<p>一方、レム睡眠は、感情に関わる記憶の処理や、バラバラな知識を結びつけて新しい発想を生み出す働きに関わっているとされています。夢を見やすいのもこの時間帯です。複雑な問題を一晩寝かせたら翌朝に解決のヒントが浮かんだ、という経験は、こうした働きと関係しているのかもしれません。</p>
+<h3>睡眠不足がもたらす影響</h3>
+<p>反対に、睡眠が不足すると、集中力や判断力が低下することはよく知られています。さらに、学習の面でも、徹夜明けは新しい情報を覚える力が落ちやすいことが、多くの実験で報告されています。短期的には「勉強時間を確保できた」ように思えても、睡眠を削ることで、結果的に学習の効率が下がってしまう可能性があるのです。</p>
+<p>睡眠不足は、心身の健康にも長期的な影響を及ぼします。気分の落ち込みやすさ、免疫機能の低下、生活習慣病のリスクとの関連などが指摘されています。特に、学生や若い社会人は、夜更かしや不規則な生活になりがちで、本人が思っている以上に睡眠負債をためている場合があります。</p>
+<h3>よい眠りのためにできること</h3>
+<p>では、どうすれば質のよい睡眠をとれるのでしょうか。専門家がよく挙げるのは、まず起きる時間と寝る時間をできるだけ一定に保つことです。休日に大幅に寝坊すると、体内時計がずれてしまい、週明けの寝つきが悪くなる原因になります。朝に太陽の光を浴びることも、体内時計を整えるのに役立ちます。</p>
+<p>また、寝る直前までスマートフォンを見ていると、画面の光や情報による刺激で、脳が覚醒した状態のまま眠りにつきにくくなることがあります。就寝の一時間ほど前からは画面を見る時間を減らし、部屋の照明を落として、穏やかに過ごすのがよいとされています。カフェインは、摂取してから数時間にわたって効果が続くため、夕方以降は控えめにするのが無難です。</p>
+<h3>昼寝という選択肢</h3>
+<p>日中の眠気が強いときには、短い昼寝が効果的です。15分から20分程度の仮眠は、午後の集中力を回復させ、作業の効率を高めることが知られています。ただし、長く寝すぎると深い眠りに入ってしまい、起きた後にかえってぼんやりすることがあるため、時間を決めて取り入れるのがコツです。</p>
+<p>睡眠は、削ってよい時間ではなく、学びや仕事の成果を支える土台です。忙しいときこそ、眠りの時間を確保することが、結果として自分の力を最大限に引き出すことにつながります。</p>` },
+
+    4: { tag:'エネルギー・社会', kicker:'エネルギー・環境', title:'再生可能エネルギーの現在地：普及の先にある課題', meta:'2025年6月 · 読了目安 4分',
+      lead:`太陽光や風力といった再生可能エネルギーは、いまや世界の電力供給を支える主役のひとつになりつつあります。導入が広がる一方で、電力の安定供給や地域との共生など、普及が進んだからこそ見えてきた課題もあります。その現在地を整理します。`,
+      body:`
+<p>気候変動への対策として、二酸化炭素を排出しない電力への転換が世界的に求められています。その中心的な役割を担うのが、太陽光、風力、水力、地熱、バイオマスなどの再生可能エネルギーです。技術の進歩と量産効果によって、特に太陽光発電と風力発電のコストは、この十数年で大きく下がりました。国や地域によっては、新しく発電所をつくる場合、再生可能エネルギーが最も安価な選択肢になっています。</p>
+<h3>広がる導入と日本の事情</h3>
+<p>日本でも、2012年の固定価格買取制度の開始をきっかけに、太陽光発電の導入が急速に進みました。国土の約3分の2が山地である日本では、広い平地を確保しにくいため、屋根の上や工場の屋根、使われなくなった土地などを活用した設置が広がっています。また、周囲を海に囲まれた日本では、洋上風力発電にも大きな期待が寄せられており、各地で計画や調査が進められています。</p>
+<p>新しい技術の開発も進んでいます。たとえば、「ペロブスカイト太陽電池」は、薄くて軽く、曲げられるという特徴を持つため、これまで設置が難しかった建物の壁面や、耐荷重の小さい屋根にも取り付けられる可能性があります。日本の研究成果が基盤となっている分野でもあり、実用化に向けた取り組みが続いています。</p>
+<h3>変動する電力をどう支えるか</h3>
+<p>再生可能エネルギーの大きな課題は、天候によって発電量が変わることです。太陽光は夜間には発電できず、風力は風が弱ければ十分な電力を生み出せません。電力は「使う量と作る量を常に一致させる」必要があるため、変動する電源が増えるほど、需給のバランスをとる難しさも増していきます。</p>
+<p>この課題に対する鍵の一つが、蓄電池です。発電量が多い昼間に電気をためておき、需要が高まる夕方以降に放出することで、変動をならすことができます。大型の蓄電設備の導入は各国で増えており、電気自動車のバッテリーを電力の調整に活用する構想も研究されています。加えて、地域を越えて電気をやり取りするための送電網の増強も欠かせません。発電に適した地域と電気を多く使う都市は離れていることが多く、送電網の整備が普及の速度を左右します。</p>
+<h3>地域との共生という視点</h3>
+<p>導入が進む中で、地域社会との関係も問われるようになりました。大規模な太陽光発電所の建設によって景観や自然環境が変わったり、斜面の造成が防災面の不安を呼んだりする例が報告されています。風力発電についても、騒音や野鳥への影響をめぐって、地域の理解を得る丁寧な話し合いが求められています。再生可能エネルギーは「環境にやさしい」というだけで受け入れられるものではなく、地域の暮らしや自然との調和を図る姿勢が欠かせません。</p>
+<h3>私たちの暮らしとのつながり</h3>
+<p>電力の選び方は、個人にも開かれています。電力会社が提供する再生可能エネルギー由来のプランを選んだり、住宅に太陽光パネルや蓄電池を設置したり、日々の省エネを心がけたりすることも、エネルギーの未来に関わる行動の一つです。</p>
+<p>再生可能エネルギーは、導入の拡大という第一段階から、安定供給と社会との調和を両立させる第二段階へと移りつつあります。技術、制度、そして私たち一人ひとりの理解が組み合わさってはじめて、持続可能なエネルギーの姿が見えてくるでしょう。</p>` }
+  };
+
+  function loadArticle(n) {
+    const a = ARTICLES[n];
+    document.getElementById('r-tag').textContent = a.tag;
+    document.getElementById('r-kicker').textContent = a.kicker;
+    document.getElementById('r-title').textContent = a.title;
+    document.getElementById('r-meta').textContent = a.meta;
+    document.getElementById('r-lead').textContent = a.lead;
+    document.getElementById('r-body').innerHTML = a.body;
+    window.scrollTo(0, 0);
+  }
   // ===== START =====
   document.getElementById('btn-start').addEventListener('click', () => {
+        if (currentArticle !== 1 && feedbackOn && threshold === null) {
+      alert('フィードバックONには、先に記事1で閾値を設定してください。'); return;
+    }
     if (typeof DeviceOrientationEvent !== 'undefined' &&
         typeof DeviceOrientationEvent.requestPermission === 'function') {
       DeviceOrientationEvent.requestPermission()
@@ -717,26 +634,67 @@
   });
 
   function startSession() {
-    records   = [];
-    warnCount = 0;
-    overlayOn = false;
-    $overlay.classList.remove('active');
+    records = []; calibAngles = []; calibDone = false;
+    belowSince = null; evY = 0; evR = 0;
+    applyState('good');
+    loadArticle(currentArticle);
+    document.getElementById('calib-status').textContent = '';
+    currentBeta = 0;
     window.addEventListener('deviceorientation', onOrientation);
-    if (currentMode === 'overlay') {
-      show($reader);
-    } else {
-      show($reader2);
+    show($reader);
+    startTime = Date.now();
+    intervalId = setInterval(tick, 100);
+  }
+
+  function applyState(state) {
+    $yellow.classList.toggle('active', state === 'yellow');
+    $overlay.classList.toggle('active', state === 'red');
+  }
+
+  function median(a) {
+    const s = [...a].sort((x, y) => x - y), m = s.length >> 1;
+    return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+  }
+
+  function finishCalibration() {
+    calibDone = true;
+    const med = median(calibAngles);
+    const mad = median(calibAngles.map(a => Math.abs(a - med)));
+    threshold = med - 1 * (mad * 1.4826);
+    try { localStorage.setItem('ng_threshold', threshold); } catch(e){}
+    document.getElementById('calib-status').textContent = '閾値設定完了';
+  }
+
+  function tick() {
+    const now = Date.now(), elapsed = now - startTime;
+    const angle = Math.abs(Math.round(currentBeta));
+
+    if (currentArticle === 1) {
+      const st = document.getElementById('calib-status');
+      if (elapsed < CAL_START) st.textContent = '準備中';
+      else if (elapsed < CAL_END) {
+        calibAngles.push(angle);
+        st.textContent = '計測中 あと' + Math.ceil((CAL_END - elapsed) / 1000) + '秒';
+      } else if (!calibDone) finishCalibration();
     }
-    // 0.1秒ごとに記録
-    intervalId = setInterval(() => {
-      records.push({ time: new Date(), angle: Math.abs(Math.round(currentBeta)) });
-    }, 100);  // 100ms = 0.1秒
+
+    // 状態判定（記事2〜4・閾値あり）。ON/OFFに関わらず状態は記録する
+    let state = 'good';
+    if (currentArticle !== 1 && threshold !== null) {
+      if (angle < threshold) {
+        if (belowSince === null) belowSince = now;
+        const d = now - belowSince;
+        state = d >= RED_MS ? 'red' : d >= YELLOW_MS ? 'yellow' : 'good';
+      } else belowSince = null;
+      if (feedbackOn) applyState(state);
+    }
+    records.push({ time: new Date(now), elapsed, angle, state });
   }
 
   // ===== ORIENTATION =====
   function onOrientation(e) {
     currentBeta = e.beta !== null ? e.beta : 0;
-    const tilt  = Math.abs(Math.round(currentBeta));
+  
 
     if (tilt < (90 - threshold)) {
       if (!overlayOn) {
@@ -753,17 +711,13 @@
   }
 
   // ===== FINISH =====
-  document.getElementById('btn-finish').addEventListener('click', () => {
+   document.getElementById('btn-finish').addEventListener('click', () => {
     clearInterval(intervalId);
     window.removeEventListener('deviceorientation', onOrientation);
-    $overlay.classList.remove('active');
-    showResult();
-  });
-
-  document.getElementById('btn-finish2').addEventListener('click', () => {
-    clearInterval(intervalId);
-    window.removeEventListener('deviceorientation', onOrientation);
-    $overlay.classList.remove('active');
+    applyState('good');
+    if (currentArticle === 1 && !calibDone) {
+      alert('93秒に達していないため、閾値は設定されませんでした。');
+    }
     showResult();
   });
 
@@ -788,8 +742,15 @@
     document.getElementById('res-max').textContent   = mx;
     document.getElementById('res-min').textContent   = mn;
     document.getElementById('res-count').textContent = records.length;
-    const warnRecords = records.filter(r => r.angle < (90 - threshold)).length;
-    document.getElementById('res-warn').textContent  = warnRecords;
+    
+        let prev = 'good'; evY = 0; evR = 0;
+    records.forEach(r => {
+      if (r.state === 'yellow' && prev === 'good') evY++;
+      if (r.state === 'red' && prev !== 'red') evR++;
+      prev = r.state;
+    });
+    document.getElementById('res-yellow').textContent = evY;
+    document.getElementById('res-red').textContent    = evR;
 
   
 
@@ -811,7 +772,7 @@
     const pad = { t:8, r:8, b:22, l:28 };
     const cW  = W - pad.l - pad.r;
     const cH  = H - pad.t - pad.b;
-    const maxV = Math.max(...angles, threshold + 5, 10);
+    const maxV = Math.max(...angles, (threshold ?? 0) + 5, 10);
 
     ctx.clearRect(0, 0, W, H);
 
@@ -825,14 +786,17 @@
     });
 
     // threshold line
+    if (threshold !== null) {
     const thY = pad.t + cH*(1 - threshold/maxV);
     ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 1.2;
     ctx.setLineDash([4,3]);
     ctx.beginPath(); ctx.moveTo(pad.l, thY); ctx.lineTo(pad.l+cW, thY); ctx.stroke();
     ctx.setLineDash([]);
+    }
 
     if (angles.length < 2) return;
     const step = cW / (angles.length - 1);
+   
 
     // fill
     const grad = ctx.createLinearGradient(0, pad.t, 0, pad.t+cH);
@@ -863,7 +827,7 @@
       const x = pad.l + i*step;
       const y = pad.t + cH*(1 - a/maxV);
       ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2);
-      ctx.fillStyle = a < (90 - threshold) ? '#dc2626' : '#2563eb';
+      ctx.fillStyle = (threshold !== null && a < threshold) ? '#dc2626' : '#2563eb';
       ctx.fill();
     });
   }
@@ -882,18 +846,31 @@
       ['最大角度(°)', mx],
       ['最小角度(°)', mn],
       ['計測回数(回)', records.length],
-      ['警告回数(回)', records.filter(r => r.angle < (90 - threshold)).length],
+      ['記事番号', currentArticle],
+      ['フィードバック', currentArticle === 1 ? 'なし' : (feedbackOn ? 'ON' : 'OFF')],
+      ['閾値(°)', threshold === null ? '未設定' : threshold.toFixed(2)],
+      ['黄色信号回数', evY],
+      ['赤信号回数', evR],
       ['',''],  // 空行
       ['【生データ】',''],
       ['#','時刻','角度(°)','状態']
     ];
 
+    const label = { good:'良好', yellow:'黄', red:'赤' };
     const rows = [...summary];
     records.forEach((r,i) => rows.push([
       i+1,
       r.time.toLocaleString('ja-JP'),
+      (r.elapsed/1000).toFixed(1),
       r.angle,
-      r.angle < (90 - threshold) ? '傾きすぎ' : '良好'
+      label[r.state]
+    ]));
+
+    records.forEach((r,i) => rows.push([
+      i+1,
+      r.time.toLocaleString('ja-JP'),
+      r.angle,
+      (threshold !== null && r.angle < threshold) ? '傾きすぎ' : '良好'
     ]));
 
     const csv  = '\uFEFF' + rows.map(r=>r.join(',')).join('\n');
@@ -909,10 +886,11 @@
   document.getElementById('btn-restart').addEventListener('click', () => {
     clearInterval(intervalId);
     window.removeEventListener('deviceorientation', onOrientation);
-    $overlay.classList.remove('active');
-    records=[]; warnCount=0; overlayOn=false;
+        applyState('good');
+    records = [];
+    updateThDisplay();
     show($start);
   });
-</script>
-</body>
-</html>
+  </script>
+ </body>
+</html>}
