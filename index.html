@@ -56,7 +56,7 @@
       text-align: left;
     }
 
-    
+  
 
     /* start button */
     #btn-start {
@@ -210,6 +210,7 @@
     }
     #yellow-signal.active { opacity: 0.9; }
     #calib-status { font-size: 0.75rem; color: #888; }
+    .slider-hint { font-size: 0.75rem; color: #aaa; margin-top: 8px; text-align: left; }
 
     /* ===== POSTURE OVERLAY ===== */
     #overlay {
@@ -416,6 +417,9 @@
     <div class="slider-hint">現在の閾値：<strong id="th-display">未設定</strong>
       <a href="#" id="th-reset" style="margin-left:8px;color:#2563eb">リセット</a></div>
   </div>
+
+<button id="btn-start">センサー開始 → 記事を読む</button>   
+</div>   
 
 <!-- ===== READER SCREEN ===== -->
 <div id="screen-reader" class="screen">
@@ -694,20 +698,6 @@
   // ===== ORIENTATION =====
   function onOrientation(e) {
     currentBeta = e.beta !== null ? e.beta : 0;
-  
-
-    if (tilt < (90 - threshold)) {
-      if (!overlayOn) {
-        overlayOn = true;
-        if (currentMode === 'overlay') $overlay.classList.add('active');  // モードで分岐
-        warnCount++;
-      }
-    } else {
-      if (overlayOn) {
-        overlayOn = false;
-        $overlay.classList.remove('active');
-      }
-    }
   }
 
   // ===== FINISH =====
@@ -853,7 +843,7 @@
       ['赤信号回数', evR],
       ['',''],  // 空行
       ['【生データ】',''],
-      ['#','時刻','角度(°)','状態']
+      ['#','時刻','経過(秒)','角度(°)','状態']
     ];
 
     const label = { good:'良好', yellow:'黄', red:'赤' };
@@ -864,13 +854,6 @@
       (r.elapsed/1000).toFixed(1),
       r.angle,
       label[r.state]
-    ]));
-
-    records.forEach((r,i) => rows.push([
-      i+1,
-      r.time.toLocaleString('ja-JP'),
-      r.angle,
-      (threshold !== null && r.angle < threshold) ? '傾きすぎ' : '良好'
     ]));
 
     const csv  = '\uFEFF' + rows.map(r=>r.join(',')).join('\n');
@@ -893,4 +876,4 @@
   });
   </script>
  </body>
-</html>}
+</html>
