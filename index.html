@@ -418,7 +418,7 @@
       <a href="#" id="th-reset" style="margin-left:8px;color:#2563eb">リセット</a></div>
   </div>
 
-<button id="btn-start">センサー開始 → 記事を読む</button>   
+<button id="btn-start">記事を読む</button>   
 </div>   
 
 <!-- ===== READER SCREEN ===== -->
@@ -666,20 +666,21 @@
     const mad = median(calibAngles.map(a => Math.abs(a - med)));
     threshold = med - 1 * (mad * 1.4826);
     try { localStorage.setItem('ng_threshold', threshold); } catch(e){}
-    document.getElementById('calib-status').textContent = '閾値設定完了';
   }
 
   function tick() {
     const now = Date.now(), elapsed = now - startTime;
     const angle = Math.abs(Math.round(currentBeta));
 
-    if (currentArticle === 1) {
+        if (currentArticle === 1) {
       const st = document.getElementById('calib-status');
-      if (elapsed < CAL_START) st.textContent = '準備中';
-      else if (elapsed < CAL_END) {
-        calibAngles.push(angle);
-        st.textContent = '計測中 あと' + Math.ceil((CAL_END - elapsed) / 1000) + '秒';
-      } else if (!calibDone) finishCalibration();
+      if (elapsed < CAL_START) {
+        st.textContent = '準備中 ' + Math.ceil((CAL_START - elapsed) / 1000);
+      } else {
+        st.textContent = '';
+        if (elapsed < CAL_END) calibAngles.push(angle);
+        else if (!calibDone) finishCalibration();
+      }
     }
 
     // 状態判定（記事2〜4・閾値あり）。ON/OFFに関わらず状態は記録する
@@ -705,8 +706,8 @@
     clearInterval(intervalId);
     window.removeEventListener('deviceorientation', onOrientation);
     applyState('good');
-    if (currentArticle === 1 && !calibDone) {
-      alert('93秒に達していないため、閾値は設定されませんでした。');
+        if (currentArticle === 1 && !calibDone && calibAngles.length > 0) {
+      finishCalibration();
     }
     showResult();
   });
@@ -728,10 +729,7 @@
     const mx     = Math.max(...angles);
     const mn     = Math.min(...angles);
 
-    document.getElementById('res-avg').textContent   = avg;
-    document.getElementById('res-max').textContent   = mx;
-    document.getElementById('res-min').textContent   = mn;
-    document.getElementById('res-count').textContent = records.length;
+  
     
         let prev = 'good'; evY = 0; evR = 0;
     records.forEach(r => {
@@ -739,8 +737,7 @@
       if (r.state === 'red' && prev !== 'red') evR++;
       prev = r.state;
     });
-    document.getElementById('res-yellow').textContent = evY;
-    document.getElementById('res-red').textContent    = evR;
+    
 
   
 
@@ -776,13 +773,7 @@
     });
 
     // threshold line
-    if (threshold !== null) {
-    const thY = pad.t + cH*(1 - threshold/maxV);
-    ctx.strokeStyle = '#dc2626'; ctx.lineWidth = 1.2;
-    ctx.setLineDash([4,3]);
-    ctx.beginPath(); ctx.moveTo(pad.l, thY); ctx.lineTo(pad.l+cW, thY); ctx.stroke();
-    ctx.setLineDash([]);
-    }
+    
 
     if (angles.length < 2) return;
     const step = cW / (angles.length - 1);
@@ -817,7 +808,7 @@
       const x = pad.l + i*step;
       const y = pad.t + cH*(1 - a/maxV);
       ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2);
-      ctx.fillStyle = (threshold !== null && a < threshold) ? '#dc2626' : '#2563eb';
+      ctx.fillStyle = '#2563eb';
       ctx.fill();
     });
   }
