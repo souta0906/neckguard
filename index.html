@@ -395,7 +395,7 @@
 <!-- ===== START SCREEN ===== -->
 <div id="screen-start" class="screen active">
   <h1>NeckGuard ニュースリーダー</h1>
-  <p>記事を読みながら、スマホの傾きを自動で記録。<br>姿勢が崩れたらお知らせします。</p>
+  <p>記事を読みながら、スマホの傾きを自動で記録。</p>
 
    <div class="card">
     <div class="card-label">記事を選択</div>
@@ -405,16 +405,16 @@
       <button class="mode-btn" data-art="3">記事3</button>
       <button class="mode-btn" data-art="4">記事4</button>
     </div>
-    <div class="slider-hint" id="art-hint">記事1：閾値設定用（フィードバックなし）</div>
+    <div class="slider-hint" id="art-hint">記事1</div>
   </div>
 
   <div class="card" id="card-feedback" style="display:none">
-    <div class="card-label">姿勢フィードバック</div>
+    <div class="card-label">介入システム</div>
     <div class="btn-row">
       <button id="btn-fb-on" class="mode-btn" onclick="setFeedback(true)">ON</button>
       <button id="btn-fb-off" class="mode-btn mode-active" onclick="setFeedback(false)">OFF</button>
     </div>
-    <div class="slider-hint">現在の閾値：<strong id="th-display">未設定</strong>
+    <div class="slider-hint">現在：<strong id="th-display">未設定</strong>
       <a href="#" id="th-reset" style="margin-left:8px;color:#2563eb">リセット</a></div>
   </div>
 
