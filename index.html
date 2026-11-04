@@ -204,11 +204,25 @@
     .art-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
     .btn-row { display: flex; gap: 8px; }
     #yellow-signal {
-      position: fixed; top: 0; left: 0; right: 0; height: 6px;
-      background: #facc15; opacity: 0; pointer-events: none;
-      transition: opacity 0.5s ease; z-index: 50;
-    }
-    #yellow-signal.active { opacity: 0.9; }
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 8px);
+  left: 50%;
+  transform: translate(-50%, -160%);
+  width: calc(100% - 16px); max-width: 420px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  background: rgba(40,40,45,0.95); color: white;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  font-size: 0.85rem; line-height: 1.4;
+  opacity: 0; pointer-events: none;
+  transition: transform 0.35s ease, opacity 0.35s ease;
+  z-index: 50;
+}
+#yellow-signal.active { transform: translate(-50%, 0); opacity: 1; }
+#yellow-signal .n-icon { font-size: 1.4rem; }
+#yellow-signal .n-app { font-size: 0.7rem; opacity: 0.7; }
+
     #calib-status { font-size: 0.75rem; color: #888; }
     .slider-hint { font-size: 0.75rem; color: #aaa; margin-top: 8px; text-align: left; }
 
@@ -384,7 +398,14 @@
 </head>
 <body>
 
-<div id="yellow-signal"></div>
+<div id="yellow-signal">
+  <span class="n-icon">📱</span>
+  <div>
+    <div class="n-app">NeckGuard</div>
+    <div>首が前に傾いています。スマホを目の高さまで上げましょう。</div>
+  </div>
+</div>
+
 <!-- ===== OVERLAY ===== -->
 <div id="overlay">
   <div class="overlay-icon">🧍</div>
@@ -414,7 +435,7 @@
       <button id="btn-fb-on" class="mode-btn" onclick="setFeedback(true)">ON</button>
       <button id="btn-fb-off" class="mode-btn mode-active" onclick="setFeedback(false)">OFF</button>
     </div>
-    <div class="slider-hint">現在：<strong id="th-display"></strong>
+    <div class="slider-hint">現在：<strong id="th-display">未設定</strong>
       <a href="#" id="th-reset" style="margin-left:8px;color:#2563eb">リセット</a></div>
   </div>
 
