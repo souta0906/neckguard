@@ -637,7 +637,6 @@ document.querySelector('#screen-start h1').addEventListener('click', () => {
     window.scrollTo(0, 0);
   }
   // ===== START =====
-  document.getElementById('admin-panel').style.display = 'none';
   document.getElementById('btn-start').addEventListener('click', () => {
         if (currentArticle !== 1 && feedbackOn && threshold === null) {
       alert('フィードバックONには、先に記事1で閾値を設定してください。'); return;
@@ -654,7 +653,9 @@ document.querySelector('#screen-start h1').addEventListener('click', () => {
     }
   });
 
+  
   function startSession() {
+    document.getElementById('admin-panel').style.display = 'none';
     records = []; calibAngles = []; calibDone = false;
     belowSince = null; evY = 0; evR = 0;
     applyState('good');
