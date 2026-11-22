@@ -445,7 +445,7 @@
       <a href="#" id="th-reset" style="margin-left:8px;color:#2563eb">リセット</a></div>
   </div>
 </div>
-  </div>
+
 
 <button id="btn-start">記事を読む</button>   
 </div>   
@@ -638,8 +638,8 @@ document.querySelector('#screen-start h1').addEventListener('click', () => {
   }
   // ===== START =====
   document.getElementById('btn-start').addEventListener('click', () => {
-        if (currentArticle !== 1 && feedbackOn && threshold === null) {
-      alert('フィードバックONには、先に記事1で閾値を設定してください。'); return;
+        if (!calibMode && feedbackOn && threshold === null) {
+      alert('フィードバックONには、先に閾値設定モードで閾値を設定してください。'); return;
     }
     if (typeof DeviceOrientationEvent !== 'undefined' &&
         typeof DeviceOrientationEvent.requestPermission === 'function') {
@@ -690,7 +690,7 @@ document.querySelector('#screen-start h1').addEventListener('click', () => {
     const now = Date.now(), elapsed = now - startTime;
     const angle = Math.abs(Math.round(currentBeta));
 
-            if (currentArticle === 1) {
+            if (calibMode) {
       const st = document.getElementById('calib-status');
       if (elapsed < CAL_START) {
         st.textContent = '準備中 ' + Math.ceil((CAL_START - elapsed) / 1000);
@@ -702,7 +702,7 @@ document.querySelector('#screen-start h1').addEventListener('click', () => {
 
     // 状態判定（記事2〜4・閾値あり）。ON/OFFに関わらず状態は記録する
     let state = 'good';
-    if (currentArticle !== 1 && threshold !== null) {
+    if (!calibMode && threshold !== null) {
       if (angle < threshold) {
         if (belowSince === null) belowSince = now;
         const d = now - belowSince;
@@ -723,7 +723,7 @@ document.querySelector('#screen-start h1').addEventListener('click', () => {
     clearInterval(intervalId);
     window.removeEventListener('deviceorientation', onOrientation);
     applyState('good');
-        if (currentArticle === 1 && !calibDone && calibAngles.length > 0) {
+        if (calibMode && !calibDone && calibAngles.length > 0) {
       finishCalibration();
     }
     showResult();
