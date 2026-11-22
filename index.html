@@ -702,7 +702,7 @@ document.querySelector('#screen-start h1').addEventListener('click', () => {
 
     // 状態判定（記事2〜4・閾値あり）。ON/OFFに関わらず状態は記録する
     let state = 'good';
-    if (!calibMode && threshold !== null) {
+    if (!calibMode && threshold !== null && elapsed >= CAL_START) {
       if (angle < threshold) {
         if (belowSince === null) belowSince = now;
         const d = now - belowSince;
