@@ -705,6 +705,7 @@ document.querySelector('#screen-start h1').addEventListener('click', () => {
     if (!calibMode && threshold !== null && elapsed >= CAL_START) {
       below = angle < threshold;
        if (below) {
+       if (belowSince === null) belowSince = now;
         const d = now - belowSince;
         state = d >= RED_MS ? 'red' : d >= YELLOW_MS ? 'yellow' : 'good';
       } else belowSince = null;
